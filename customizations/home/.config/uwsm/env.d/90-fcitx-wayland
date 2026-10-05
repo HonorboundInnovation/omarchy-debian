@@ -1,0 +1,4 @@
+# Fcitx5 uses the Wayland input method frontend for GTK applications.
+# Debian im-config sets this in /etc/profile.d/im-config_wayland.sh;
+# remove it before UWSM exports the session environment.
+unset GTK_IM_MODULE

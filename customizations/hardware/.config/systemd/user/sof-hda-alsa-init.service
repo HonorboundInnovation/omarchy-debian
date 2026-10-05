@@ -1,0 +1,11 @@
+[Unit]
+Description=Initialize Intel SOF HDA audio before PipeWire
+Documentation=man:alsactl(1)
+ConditionPathExists=/proc/asound/sofhdadsp
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/alsactl init 1
+
+[Install]
+WantedBy=default.target

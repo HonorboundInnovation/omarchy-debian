@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then
+  echo 'Usage: omarchy pkg aur install [PACKAGE...]'
+  exit 0
+fi
+if (( $# == 0 )); then
+  read -r -p 'AUR package name: ' package
+  [[ -n $package ]] || exit 0
+  set -- "$package"
+fi
+exec omarchy-arch aur "$@"

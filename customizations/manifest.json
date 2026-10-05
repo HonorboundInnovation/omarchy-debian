@@ -1,0 +1,1169 @@
+{
+  "captured_at": "2026-10-05T00:02:56.908362+00:00",
+  "source_home": "@HOME@",
+  "entries": [
+    {
+      "path": "home/.config/hypr/.luarc.json",
+      "source": "home:.config/hypr/.luarc.json",
+      "sha256": "b43ec8c97504a15e5df594dbb0a833b94c2a5270320c75ece5644db91585d9d6",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/autostart.lua",
+      "source": "home:.config/hypr/autostart.lua",
+      "sha256": "907eddc68deabc3ecb5c3337bf76ebb90a7603052e203ac35e50235348a5b65d",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/bindings.lua",
+      "source": "home:.config/hypr/bindings.lua",
+      "sha256": "33ce1602139886b52b4ab4d3c6e544e48f9cdbfcb350d2c322e83241a2dfd62e",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/hypridle.conf",
+      "source": "home:.config/hypr/hypridle.conf",
+      "sha256": "469971e53eaf35c67458ba572e26ccd35ce3d2633e09be3fce7862f2d4718a26",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/hyprland.lua",
+      "source": "home:.config/hypr/hyprland.lua",
+      "sha256": "39974ad22f150e7b47f407a808ed60299dbec53a80f7908425e5b153ace3fe8d",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/hyprsunset.conf",
+      "source": "home:.config/hypr/hyprsunset.conf",
+      "sha256": "8674c758b41d2308fd194e08b81957e89ce16ba1839087b9ce4eda5149026e3c",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/input.lua",
+      "source": "home:.config/hypr/input.lua",
+      "sha256": "1c3904e31df667d5bee09ddad3744365f1341e8a6833855d92872789dbe667f7",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/looknfeel.lua",
+      "source": "home:.config/hypr/looknfeel.lua",
+      "sha256": "48f0e9b8248c8f19a1cc6c212e22279cb7fa55f4a88e4dcbb6ebd90f613b5ea6",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/monitors.lua",
+      "source": "home:.config/hypr/monitors.lua",
+      "sha256": "ee1f6fbaeea65f39b016a923187827d043f43b33d0e05f8d2207d8078dda87aa",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hypr/xdph.conf",
+      "source": "home:.config/hypr/xdph.conf",
+      "sha256": "2fded88a27b89f33cbc2b64a1258117df74b591f39a84c78ec3504a7d3b09136",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/branding/about.txt",
+      "source": "home:.config/omarchy/branding/about.txt",
+      "sha256": "5fe8adced2fe67e410e177477a7272d1807b3fedc81fbc3f030dd479bc046b76",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/branding/screensaver.txt",
+      "source": "home:.config/omarchy/branding/screensaver.txt",
+      "sha256": "f98c966b1670d71ffc26620a6ff885a73ab355b370bff6082cea3215ee580a29",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/defaults/agent",
+      "source": "home:.config/omarchy/defaults/agent",
+      "sha256": "243b0dc9b847e66c440dca985e10fe0ce9e29c379b018ddd5747ba8948f84cc8",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/extensions/omarchy-menu.jsonc",
+      "source": "home:.config/omarchy/extensions/omarchy-menu.jsonc",
+      "sha256": "1ca0fdf7d2c0976f0e4c5d8c8a5d5eeeddc693ad05c72809638eeb730c9f470c",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/plugins/malice.menu/AppSearch.js",
+      "source": "home:.config/omarchy/plugins/malice.menu/AppSearch.js",
+      "sha256": "bbc4965f7b46932bd7127b5d921b977679f2a892e6bd9672f29049d340821bd7",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/plugins/malice.menu/BarWidget.qml",
+      "source": "home:.config/omarchy/plugins/malice.menu/BarWidget.qml",
+      "sha256": "ad201156483711ba77ec97303183bc02922248e97ac0c0b8ea30d250e57cd0af",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/plugins/malice.menu/Menu.qml",
+      "source": "home:.config/omarchy/plugins/malice.menu/Menu.qml",
+      "sha256": "ac6be64f1d6adb59c0ac71eb7a67b78746cd57600cb77bfc4ad5d5d00c886b27",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/plugins/malice.menu/MenuModel.js",
+      "source": "home:.config/omarchy/plugins/malice.menu/MenuModel.js",
+      "sha256": "ff6b265ca477d0d04297b0d9a5d9715960069db6da44603160d329e087e55fd8",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/plugins/malice.menu/ScuAppLibrary.qml",
+      "source": "home:.config/omarchy/plugins/malice.menu/ScuAppLibrary.qml",
+      "sha256": "68dd83a2141e9a8eda01a9ec5e2fbaaecf5d02d969178512cc6fec118fa23a31",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/plugins/malice.menu/manifest.json",
+      "source": "home:.config/omarchy/plugins/malice.menu/manifest.json",
+      "sha256": "03e5cf42c10c0dd4fa74cfb3f6502c3d4bab62b2cfc060647565dd9dd7c414de",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/shell.json",
+      "source": "home:.config/omarchy/shell.json",
+      "sha256": "51bda6194fed48e5dd346179ef71ea8cf9860dd5c4bdbda58fba2251331c9e9e",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themed/foot.ini.tpl",
+      "source": "home:.config/omarchy/themed/foot.ini.tpl",
+      "sha256": "5ef1e323cddfda645c5c95fc134821703208e0373d31d67f43af3e4c2a0ee6f1",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themes/neural-acid/README.md",
+      "source": "home:.config/omarchy/themes/neural-acid/README.md",
+      "sha256": "96454ba5a17aac527cf8b036e554f92495003bd5aa050cd31a47d80f50b1b245",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themes/neural-acid/backgrounds/neural-core.png",
+      "source": "home:.config/omarchy/themes/neural-acid/backgrounds/neural-core.png",
+      "sha256": "6f57420b17d157597b2164425dae3ef844c9cd8afe9001b49631f82961ea47fe",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themes/neural-acid/colors.toml",
+      "source": "home:.config/omarchy/themes/neural-acid/colors.toml",
+      "sha256": "2e7c4af5723c792c57707fa4e1b402dc2444c81706f1a6b02eabcbaa43d436d8",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themes/neural-acid/hyprland.lua",
+      "source": "home:.config/omarchy/themes/neural-acid/hyprland.lua",
+      "sha256": "4b5498773cc5d99ff74a8f10c0cc20d2fe61dae7371631fe0588ff13098ea5a7",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themes/neural-acid/icons.theme",
+      "source": "home:.config/omarchy/themes/neural-acid/icons.theme",
+      "sha256": "fabce71aa1d6dff7a151d3ac1ce842c22ee11399e0279b311f97cfcfca30f7ad",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themes/neural-acid/preview-unlock.png",
+      "source": "home:.config/omarchy/themes/neural-acid/preview-unlock.png",
+      "sha256": "70baf9c3420488c47b45a51a24de483974bae4cb9512dfba891078ac21138e2d",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themes/neural-acid/preview.png",
+      "source": "home:.config/omarchy/themes/neural-acid/preview.png",
+      "sha256": "7eb1959f3b764e0fef8ab6aad9b42724902a8d63e27f5515647bc66880271b89",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/omarchy/themes/neural-acid/shell.toml",
+      "source": "home:.config/omarchy/themes/neural-acid/shell.toml",
+      "sha256": "a60f2716521cf53bad506cda163f87f8c5f74346e163cb1ea9eb4fd85c6adb62",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/alacritty/alacritty.toml",
+      "source": "home:.config/alacritty/alacritty.toml",
+      "sha256": "3e341215143a2dd4f3cf5322b1a7d9e4c9f7a7f8f4fcded7bddc3f584a22d26d",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/foot/foot.ini",
+      "source": "home:.config/foot/foot.ini",
+      "sha256": "a5165f8a0a93c6d7262aaae6c00c11617ffb2f35bafca73f458b6549a9dca5cf",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/kitty/kitty.conf",
+      "source": "home:.config/kitty/kitty.conf",
+      "sha256": "b6e6a41cf5963776a7ad443745239f89da1ba97e165b263e3d15201b058637ea",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/ghostty/config",
+      "source": "home:.config/ghostty/config",
+      "sha256": "87b7fa254cab399f461e5614a59fed5ac313e013bb1b409cbfbe756eaa439b92",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/uwsm/env.d/90-fcitx-wayland",
+      "source": "home:.config/uwsm/env.d/90-fcitx-wayland",
+      "sha256": "b253a2445f062993eaec7850057bf97ecf7eeb9e3b3cc2ceb5b8c9c10dbccb35",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/menus/applications-merged/wine-Programs-Mod Organizer-Mod Organizer.menu",
+      "source": "home:.config/menus/applications-merged/wine-Programs-Mod Organizer-Mod Organizer.menu",
+      "sha256": "26175b58a5efce0b617dec13330f67cc8f8512798fbde15250d5bfb9ad280ce7",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/menus/applications-merged/wine-Programs-Mod Organizer-Uninstall Mod Organizer.menu",
+      "source": "home:.config/menus/applications-merged/wine-Programs-Mod Organizer-Uninstall Mod Organizer.menu",
+      "sha256": "55a67e1c6d926bead5452d5710fa7258806a154238be463168ea2304e14a94f6",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/menus/applications.menu",
+      "source": "home:.config/menus/applications.menu",
+      "sha256": "f0a6c73e3489838d8de20875c9e970689fe6e2af7b2ced0daa086aed58f329a1",
+      "mode": "0o777",
+      "symlink": "/etc/xdg/menus/plasma-applications.menu"
+    },
+    {
+      "path": "home/.config/wireplumber/wireplumber.conf.d/bluetooth-a2dp-autoconnect.conf",
+      "source": "home:.config/wireplumber/wireplumber.conf.d/bluetooth-a2dp-autoconnect.conf",
+      "sha256": "825aa71689d2157980344283a76f34b5079d366a4dc359f7c151077e166a5631",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/btop/btop.conf",
+      "source": "home:.config/btop/btop.conf",
+      "sha256": "8134a5b5209192058e0c72543db2502b36abdecc22463e1b0fbfcb7f55f81e07",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/lazygit/config.yml",
+      "source": "home:.config/lazygit/config.yml",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/.gitignore",
+      "source": "home:.config/nvim/.gitignore",
+      "sha256": "f284e46933d658c493bafc852fe1bb46f54e5dbe479c251a739139517d4683ec",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/.neoconf.json",
+      "source": "home:.config/nvim/.neoconf.json",
+      "sha256": "1819a5b64b71521f214b374bdb3b4dd7531a2b91b881c0803e0029811da7f3e4",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/LICENSE",
+      "source": "home:.config/nvim/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/README.md",
+      "source": "home:.config/nvim/README.md",
+      "sha256": "9969960a98455417b5f3781772f01528a64bb450e5f9db57734713ae920bd84a",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/init.lua",
+      "source": "home:.config/nvim/init.lua",
+      "sha256": "3b2d6e9976a515b7c8df08ed7c7f61a5751e9c08a6ff5579d621b87312c9e2c6",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lazyvim.json",
+      "source": "home:.config/nvim/lazyvim.json",
+      "sha256": "e11b5459b4ab8c5dfd9f5fab67a5242ec9c475838fe777a7a9a2199b4b9e56f2",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/config/autocmds.lua",
+      "source": "home:.config/nvim/lua/config/autocmds.lua",
+      "sha256": "ccb2b3a99fe03698bdacaf41b98a48126c70fa38eaa1970e14e7309c876a9635",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/config/keymaps.lua",
+      "source": "home:.config/nvim/lua/config/keymaps.lua",
+      "sha256": "660a7d9a603a1b20b9ac13384ee21093f648646d8f4d575c52c5e5d9847f6764",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/config/lazy.lua",
+      "source": "home:.config/nvim/lua/config/lazy.lua",
+      "sha256": "14653a615b10689aa91915f45c284d07d5e7cb6c5f21fdbbf82c7664b9db4eb0",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/config/options.lua",
+      "source": "home:.config/nvim/lua/config/options.lua",
+      "sha256": "7c924d2eb9e707fba115ccc660082a8920901b25d28af338df0f9db14934dd25",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/config/remote_clipboard.lua",
+      "source": "home:.config/nvim/lua/config/remote_clipboard.lua",
+      "sha256": "bac8268c3dde4e747772467d6671e626aa4982478551d8fc8ebe1259a4854f2c",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/plugins/all-themes.lua",
+      "source": "home:.config/nvim/lua/plugins/all-themes.lua",
+      "sha256": "5747b94480c3688ac5bdde70b9aa3e3a04491acf1b1f38ea756ee64cb9995ad0",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/plugins/disable-news-alert.lua",
+      "source": "home:.config/nvim/lua/plugins/disable-news-alert.lua",
+      "sha256": "5e27ebfe77359f9a42a478fb01671962801fbba6846cc72c19c7313ccd8333be",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/plugins/example.lua",
+      "source": "home:.config/nvim/lua/plugins/example.lua",
+      "sha256": "63cab8b37a319da640b073b6d654b11952776eac8cb55d8a6ac00e5f171366ba",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/plugins/omarchy-theme-hotreload.lua",
+      "source": "home:.config/nvim/lua/plugins/omarchy-theme-hotreload.lua",
+      "sha256": "d4f74ba06eec038006daf7ac509ac4102270c634c6b5a80babce037503a8e2a1",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/plugins/snacks-animated-scrolling-off.lua",
+      "source": "home:.config/nvim/lua/plugins/snacks-animated-scrolling-off.lua",
+      "sha256": "e3dc59bf119a30f3e4a712c048902350dad188e4ebfd9a718820d3145e43d57a",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/lua/plugins/theme.lua",
+      "source": "home:.config/nvim/lua/plugins/theme.lua",
+      "sha256": "3c0a5b57eb488207d17979928f5894fd89f6136c010c68b9d6918e53bd0139f2",
+      "mode": "0o777",
+      "symlink": "../../../../.local/state/omarchy/current/theme/neovim.lua"
+    },
+    {
+      "path": "home/.config/nvim/plugin/after/transparency.lua",
+      "source": "home:.config/nvim/plugin/after/transparency.lua",
+      "sha256": "6e31b917f13e16514ac94ff9270d47f24e76509a3e559ca85116a5aa2d61306a",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/nvim/stylua.toml",
+      "source": "home:.config/nvim/stylua.toml",
+      "sha256": "59841fbcee7b707144c6a470e96e96e96062d7a59d2e45bac445984d863e1af2",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/starship.toml",
+      "source": "home:.config/starship.toml",
+      "sha256": "b17c9b5f096fc125e97050e359171c6011d6b3c7d7e9ac28f630e75b4d4bb9db",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/tmux/tmux.conf",
+      "source": "home:.config/tmux/tmux.conf",
+      "sha256": "d3eeec762196b3132d4b187ed2eb95d113cea698a3833fe87a0f60df6e38e544",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/herdr/config.toml",
+      "source": "home:.config/herdr/config.toml",
+      "sha256": "d618349e3a17b84a530e5c4b41429aae2e98d6fd06601cd59f0386965bc95ca4",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/imv/config",
+      "source": "home:.config/imv/config",
+      "sha256": "df7e7fe6fb57386e01c621eccbc99eefca301687ee35134392d0401c9dd1fa82",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/fcitx5/conf/clipboard.conf",
+      "source": "home:.config/fcitx5/conf/clipboard.conf",
+      "sha256": "2d53b40811ee7ceb71c7db0422a3ed733647f389379a57dbf2915d522dff4193",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/fcitx5/conf/notifications.conf",
+      "source": "home:.config/fcitx5/conf/notifications.conf",
+      "sha256": "f8045f8a14f361913aeba7ef0eb319dee4809170b2f4ae0bf8f30c25bcc73876",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/fcitx5/conf/xcb.conf",
+      "source": "home:.config/fcitx5/conf/xcb.conf",
+      "sha256": "f5cf059182c4361fa7b16d5149f20a09eb1e0915f4463ba60dae626b86df7d9c",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/fcitx5/profile",
+      "source": "home:.config/fcitx5/profile",
+      "sha256": "896d8f97d3d4ec46dc580610ba2240d39437bd67bf556a376f04386043b3cf13",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/autostart/org.fcitx.Fcitx5.desktop",
+      "source": "home:.config/autostart/org.fcitx.Fcitx5.desktop",
+      "sha256": "a0260e7f35579a73f77e257e9e3795abd8b33119a17b931ca6016a07036e1670",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/autostart/org.kde.xwaylandvideobridge.desktop",
+      "source": "home:.config/autostart/org.kde.xwaylandvideobridge.desktop",
+      "sha256": "5049d620de30f1f8c8c003c3fb60a7d04a7034e2e2134ead0b9b7352f4c974b3",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/autostart/print-applet.desktop",
+      "source": "home:.config/autostart/print-applet.desktop",
+      "sha256": "a0260e7f35579a73f77e257e9e3795abd8b33119a17b931ca6016a07036e1670",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/close-active.svg",
+      "source": "home:.config/gtk-3.0/assets/close-active.svg",
+      "sha256": "2da05555f3d1964369250fc12f784af754ecdad068aaac5bd02003f8a8a530dd",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/close-backdrop-active.svg",
+      "source": "home:.config/gtk-3.0/assets/close-backdrop-active.svg",
+      "sha256": "8a093a663bc898652d2241fb06cf5254692c63d68a8f703b02dfef434c24eb81",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/close-backdrop-hover.svg",
+      "source": "home:.config/gtk-3.0/assets/close-backdrop-hover.svg",
+      "sha256": "3efd00e32ddc604b10077ee90b2ca5774def83745a05769b04347a96f224a610",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/close-backdrop-normal.svg",
+      "source": "home:.config/gtk-3.0/assets/close-backdrop-normal.svg",
+      "sha256": "6355eaf6a67fdc5c4344b68fd573e5a12b26534a7674f20506b69bcb29dfca92",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/close-hover.svg",
+      "source": "home:.config/gtk-3.0/assets/close-hover.svg",
+      "sha256": "aa6ccb693bddf0c46c362bdeb86588dd497e7bf14c7fe9a436ee2725e1ed33ae",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/close-normal.svg",
+      "source": "home:.config/gtk-3.0/assets/close-normal.svg",
+      "sha256": "44aeeced273f69c58898a0d6d6ac75493285e0a6e0a0aede9fa77febf42b6e96",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximize-active.svg",
+      "source": "home:.config/gtk-3.0/assets/maximize-active.svg",
+      "sha256": "307212cf9ae967f3b4c2c67b3ba2315585aef8e7644c28ccd6791f22b7bb442d",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximize-backdrop-active.svg",
+      "source": "home:.config/gtk-3.0/assets/maximize-backdrop-active.svg",
+      "sha256": "de520fa4ad7eeee5df004c48e6f1d766f803de0e60e33bcedc2371ddf3b9acbe",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximize-backdrop-hover.svg",
+      "source": "home:.config/gtk-3.0/assets/maximize-backdrop-hover.svg",
+      "sha256": "56193589268c5eb6d30645047fe6cf868e5146c77df58c5d5a7278593362bae3",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximize-backdrop-normal.svg",
+      "source": "home:.config/gtk-3.0/assets/maximize-backdrop-normal.svg",
+      "sha256": "d59677f38788b8b996d1b122ac040ada77d3de098ab8770444e7b5277795e72d",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximize-hover.svg",
+      "source": "home:.config/gtk-3.0/assets/maximize-hover.svg",
+      "sha256": "a547dd3b004bc40f49b04c2da6d3301ae702c9ce182dfc64e98a07375d3e627f",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximize-normal.svg",
+      "source": "home:.config/gtk-3.0/assets/maximize-normal.svg",
+      "sha256": "c6738bbe9ba6d6df6a52ff5695979e989553bdbe848271c1274f82c1f3484d54",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximized-active.svg",
+      "source": "home:.config/gtk-3.0/assets/maximized-active.svg",
+      "sha256": "1638acfccca0bdab9ea0b04747a1a88d14a912780cc5c959947efd1452542280",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximized-backdrop-active.svg",
+      "source": "home:.config/gtk-3.0/assets/maximized-backdrop-active.svg",
+      "sha256": "a45aa4314cd6fe4af9ec1fc457cf6f20c1e594ee2cc577b6bb4ab7577424cbd8",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximized-backdrop-hover.svg",
+      "source": "home:.config/gtk-3.0/assets/maximized-backdrop-hover.svg",
+      "sha256": "67d2a6ee9ddbcd4b18657eb92dc819ef916349d4f6c55294e14e4ef1c7f81708",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximized-backdrop-normal.svg",
+      "source": "home:.config/gtk-3.0/assets/maximized-backdrop-normal.svg",
+      "sha256": "d1d78c1dbb754497478e764a5c497e013737a74f0be0857ee0a882cdc0bdce12",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximized-hover.svg",
+      "source": "home:.config/gtk-3.0/assets/maximized-hover.svg",
+      "sha256": "31590340a7e63a34c34bbcb3f8090f9e9b208a09f6af29eff19f8b20cb073da1",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/maximized-normal.svg",
+      "source": "home:.config/gtk-3.0/assets/maximized-normal.svg",
+      "sha256": "af9e4974442e772951a3328ac2e7633d7f0224ad6391bb883cb17f62630f26ab",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/minimize-active.svg",
+      "source": "home:.config/gtk-3.0/assets/minimize-active.svg",
+      "sha256": "1ff4564b08b52ebe49d35f9da63f8d43fa2732d13d4135a8dd83f5bbaf8e984e",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/minimize-backdrop-active.svg",
+      "source": "home:.config/gtk-3.0/assets/minimize-backdrop-active.svg",
+      "sha256": "15b8914ff2f32ebff9a7b750caccdacf2c417593e7bc79d307333502dd9cfd44",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/minimize-backdrop-hover.svg",
+      "source": "home:.config/gtk-3.0/assets/minimize-backdrop-hover.svg",
+      "sha256": "a0c8943c026f04c72ced07e8e874f5271d1c062173f44c55bef0315a5826081c",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/minimize-backdrop-normal.svg",
+      "source": "home:.config/gtk-3.0/assets/minimize-backdrop-normal.svg",
+      "sha256": "ad241ae2ed22af93fa5298b172c39917e41fe098a0daaae6bc0a3da4a0577445",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/minimize-hover.svg",
+      "source": "home:.config/gtk-3.0/assets/minimize-hover.svg",
+      "sha256": "29266b6ff6cd593ec727a8c5b3533602e97e2beab79279d78e3d47bba1203087",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/assets/minimize-normal.svg",
+      "source": "home:.config/gtk-3.0/assets/minimize-normal.svg",
+      "sha256": "70ca9cfc37c8e49792b4e4eb513716351b65185a270f094c081c03f7d12eca84",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/colors.css",
+      "source": "home:.config/gtk-3.0/colors.css",
+      "sha256": "84d85337d3cb37719134972f87546eb9bb5a0276d9eaff6d08bb5071dea028a6",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/gtk.css",
+      "source": "home:.config/gtk-3.0/gtk.css",
+      "sha256": "39f53137010efbba8ccbbba7a5f9a744291bbb70f51fd743797d82dcceef62b7",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/settings.ini",
+      "source": "home:.config/gtk-3.0/settings.ini",
+      "sha256": "1fe1bd88291ed1bac5be4ae4555d76dce3f7f0ca7799451b6723e484e88f5009",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-3.0/window_decorations.css",
+      "source": "home:.config/gtk-3.0/window_decorations.css",
+      "sha256": "2bff7af9575f5bca8336018640fd2d049b8c04c0386ffe51c8edd92424c1025c",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-4.0/colors.css",
+      "source": "home:.config/gtk-4.0/colors.css",
+      "sha256": "84d85337d3cb37719134972f87546eb9bb5a0276d9eaff6d08bb5071dea028a6",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-4.0/gtk.css",
+      "source": "home:.config/gtk-4.0/gtk.css",
+      "sha256": "39f53137010efbba8ccbbba7a5f9a744291bbb70f51fd743797d82dcceef62b7",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-4.0/settings.ini",
+      "source": "home:.config/gtk-4.0/settings.ini",
+      "sha256": "5a16284f1686f4861bf90b87936feb73bc780c2ecdf77f49b7834f401351e042",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/gtk-4.0/window_decorations.css",
+      "source": "home:.config/gtk-4.0/window_decorations.css",
+      "sha256": "2bff7af9575f5bca8336018640fd2d049b8c04c0386ffe51c8edd92424c1025c",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/hyprland-preview-share-picker/config.yaml",
+      "source": "home:.config/hyprland-preview-share-picker/config.yaml",
+      "sha256": "b2eb82413614b69ff03f145888a23ce06aaffe903a018ad0ffbe6ddade161fab",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/chromium-flags.conf",
+      "source": "home:.config/chromium-flags.conf",
+      "sha256": "75cfb592ab71abf38f99a1c48ee00ad8c772705c4e9a2b66be3ed6d70e7888fd",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/mimeapps.list",
+      "source": "home:.config/mimeapps.list",
+      "sha256": "07384b7bac9e40b6bcc39dc78033f324899fe858eeab21ee9e4c610d18b5872d",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/user-dirs.dirs",
+      "source": "home:.config/user-dirs.dirs",
+      "sha256": "6a0a498fde15c3747b508f4464e82f53e16c501a49f2e0c9fb114bbfbb051887",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/user-dirs.locale",
+      "source": "home:.config/user-dirs.locale",
+      "sha256": "674ac4b0bd40c5764a1ddf4e0119e9b4ee02f743211eefcf7b27c932a4831a4b",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/kdeglobals",
+      "source": "home:.config/kdeglobals",
+      "sha256": "10d718a3bd8ff0f7df42a7fdba4fb57f5c6b94672fe25498dd127e08c63e4e32",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.config/dolphinrc",
+      "source": "home:.config/dolphinrc",
+      "sha256": "4998f6f955c8c551cef5833c30cdd73f4d61e04a0ce91f19158c7fd6b77c733b",
+      "mode": "0o600",
+      "symlink": null
+    },
+    {
+      "path": "home/.XCompose",
+      "source": "home:.XCompose",
+      "sha256": "8addbe9c8136aa9149e9b23001d61b7b6d0a0cec2c9ed166b68d76511a5f1319",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/background",
+      "source": "home:.local/state/omarchy/current/background",
+      "sha256": "4218ea28010bad81ba43f29e37b0701d78600901f95b656a4b7d4aff3a7a9884",
+      "mode": "0o777",
+      "symlink": "@HOME@/.local/state/omarchy/current/theme/backgrounds/neural-core.png"
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/README.md",
+      "source": "home:.local/state/omarchy/current/theme/README.md",
+      "sha256": "96454ba5a17aac527cf8b036e554f92495003bd5aa050cd31a47d80f50b1b245",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/alacritty.toml",
+      "source": "home:.local/state/omarchy/current/theme/alacritty.toml",
+      "sha256": "2bb83ac9f430076d049040031bef43f31e86e9d8c9385b5139979597e72b6925",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/backgrounds/neural-core.png",
+      "source": "home:.local/state/omarchy/current/theme/backgrounds/neural-core.png",
+      "sha256": "6f57420b17d157597b2164425dae3ef844c9cd8afe9001b49631f82961ea47fe",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/btop.theme",
+      "source": "home:.local/state/omarchy/current/theme/btop.theme",
+      "sha256": "776d9d435b9686c8a87fb68cc58825ec5eb99f883016e6d50c7a6f8e7b5762e1",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/chromium.theme",
+      "source": "home:.local/state/omarchy/current/theme/chromium.theme",
+      "sha256": "23bf4e39768f95543c41ac2899ea65eac48c4a7959ad1ae0fe4ccf41cbc264e0",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/claude.json",
+      "source": "home:.local/state/omarchy/current/theme/claude.json",
+      "sha256": "bc80f7a2e2a5cc0af4bf4c8690e07a178e1406dd08534707b1098b895bf4b507",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/colors.toml",
+      "source": "home:.local/state/omarchy/current/theme/colors.toml",
+      "sha256": "2e7c4af5723c792c57707fa4e1b402dc2444c81706f1a6b02eabcbaa43d436d8",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/foot.ini",
+      "source": "home:.local/state/omarchy/current/theme/foot.ini",
+      "sha256": "5d8e5fb6b3f00af4855497ecff1115940ad49b53c3b2b8a6ea668ea4c38157f0",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/ghostty.conf",
+      "source": "home:.local/state/omarchy/current/theme/ghostty.conf",
+      "sha256": "9ea04c33e2d01d37ad41d11d700f754ce4914341ed201fbc27db834e1fdd11d2",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/gum_env.lua",
+      "source": "home:.local/state/omarchy/current/theme/gum_env.lua",
+      "sha256": "d8f873cb409a502162e0131d197a739403eebb9cdf33c1a003e26a16b06c6b16",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/helix.toml",
+      "source": "home:.local/state/omarchy/current/theme/helix.toml",
+      "sha256": "f7566fb647806cd2b568809bf4f9bf3765f5d6cb8f4c43a474638d94d4f96754",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/hermes.yaml",
+      "source": "home:.local/state/omarchy/current/theme/hermes.yaml",
+      "sha256": "d1cf09b23243d29955833ec214ad3cefc0e170f4d90b5dd194c34afe1d17fe09",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/hyprland-preview-share-picker.css",
+      "source": "home:.local/state/omarchy/current/theme/hyprland-preview-share-picker.css",
+      "sha256": "5693eb205182d41c121d3581cf3d67d3489d08ca501a1e596abd186e560b5a85",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/hyprland.lua",
+      "source": "home:.local/state/omarchy/current/theme/hyprland.lua",
+      "sha256": "4b5498773cc5d99ff74a8f10c0cc20d2fe61dae7371631fe0588ff13098ea5a7",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/icons.theme",
+      "source": "home:.local/state/omarchy/current/theme/icons.theme",
+      "sha256": "fabce71aa1d6dff7a151d3ac1ce842c22ee11399e0279b311f97cfcfca30f7ad",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/keyboard.rgb",
+      "source": "home:.local/state/omarchy/current/theme/keyboard.rgb",
+      "sha256": "f673cdd1948256cb740e474b4928fad417d0d25297953b54f3d678aa944b6b57",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/kitty.conf",
+      "source": "home:.local/state/omarchy/current/theme/kitty.conf",
+      "sha256": "b04ab7e1334d58816d47e24652da8669a36117f835d93ccf31e4484e825a4ea7",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/neovim.lua",
+      "source": "home:.local/state/omarchy/current/theme/neovim.lua",
+      "sha256": "fb4c2b09549d2dbf9916699ffd41decbc5d39d39a3fb5f68c8619f4ec08d70b7",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/obsidian.css",
+      "source": "home:.local/state/omarchy/current/theme/obsidian.css",
+      "sha256": "1c0addc775b38fb452f93c35006086924219c5fbfb622a01858eda70953ca5ab",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/pi.json",
+      "source": "home:.local/state/omarchy/current/theme/pi.json",
+      "sha256": "cf4b2de060f3561d1957fb050efb8ec7dfb1649ea60b54c3af299202d8265b0b",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/preview-unlock.png",
+      "source": "home:.local/state/omarchy/current/theme/preview-unlock.png",
+      "sha256": "70baf9c3420488c47b45a51a24de483974bae4cb9512dfba891078ac21138e2d",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/preview.png",
+      "source": "home:.local/state/omarchy/current/theme/preview.png",
+      "sha256": "7eb1959f3b764e0fef8ab6aad9b42724902a8d63e27f5515647bc66880271b89",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/shell.toml",
+      "source": "home:.local/state/omarchy/current/theme/shell.toml",
+      "sha256": "a60f2716521cf53bad506cda163f87f8c5f74346e163cb1ea9eb4fd85c6adb62",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/t3code.json",
+      "source": "home:.local/state/omarchy/current/theme/t3code.json",
+      "sha256": "9d52e81c027774fca824064788ea0b7fc05a67ead1fedad26fb54736c98a04f6",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme/vscode-theme.json",
+      "source": "home:.local/state/omarchy/current/theme/vscode-theme.json",
+      "sha256": "bf4ef532892d1fa6ee003d44d9a39d03ad35d7c40e2a81eb776e51cc8d6e2f13",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/current/theme.name",
+      "source": "home:.local/state/omarchy/current/theme.name",
+      "sha256": "20c69aedbe7f7e967405c4628485bd0148624f6886c735fa4a087c51edfc16cc",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/toggles/hypr/flags.lua",
+      "source": "home:.local/state/omarchy/toggles/hypr/flags.lua",
+      "sha256": "a6384f4531f68f2d06f5e0432bee92923e47d8aa22ad2078ef7add8e8a56b40b",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/toggles/hypr/internal-monitor-clamshell.lua",
+      "source": "home:.local/state/omarchy/toggles/hypr/internal-monitor-clamshell.lua",
+      "sha256": "23363932634cfc961b28eeddc15c3151633b11765cb4822955dd94a3a2273902",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/state/omarchy/toggles/hypr/internal-monitor-scale",
+      "source": "home:.local/state/omarchy/toggles/hypr/internal-monitor-scale",
+      "sha256": "44b5ba8ee4b29ee6f52588d6d53a9229f7c92ae275d89dd354b95d14d2b77fbe",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/share/nautilus-python/extensions/localsend.py",
+      "source": "home:.local/share/nautilus-python/extensions/localsend.py",
+      "sha256": "c5b2ddaf1bb5ae6fa3b21da8ae13215877db504effe6d088db3b1618bb47205a",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/share/nautilus-python/extensions/transcode.py",
+      "source": "home:.local/share/nautilus-python/extensions/transcode.py",
+      "sha256": "4f4428a741325d9c776f3c28884c8a21e96bcd52c65949b16dca21ea1d5ae819",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/bin/google-chrome-stable",
+      "source": "home:.local/bin/google-chrome-stable",
+      "sha256": "3eeed6811c42b54d1df1bdfec2a7726225fa992475901092409d3ccafc01ca1a",
+      "mode": "0o755",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/bin/xdg-terminal-exec",
+      "source": "home:.local/bin/xdg-terminal-exec",
+      "sha256": "b77c62b9fff180bbcaa9b3d54b4f90c79af1e991be6a28ef82a7b6523128d691",
+      "mode": "0o755",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/share/applications/google-chrome.desktop",
+      "source": "home:.local/share/applications/google-chrome.desktop",
+      "sha256": "04929027cad8d024544e211749736fd354692a6ec987095a17e52a152741c30a",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/share/applications/omarchy-arch.desktop",
+      "source": "home:.local/share/applications/omarchy-arch.desktop",
+      "sha256": "555223886c9993a118cbcab5ef4b1d91ad9df3453b3fb0d0c7d898a46d937a35",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "home/.local/share/applications/Tailscale.desktop",
+      "source": "home:.local/share/applications/Tailscale.desktop",
+      "sha256": "a80141194074d86a69e866143316917da80ed36febab855d715ab8c8d4d5c271",
+      "mode": "0o775",
+      "symlink": null
+    },
+    {
+      "path": "hardware/.config/systemd/user/sof-hda-alsa-init.service",
+      "source": "home:.config/systemd/user/sof-hda-alsa-init.service",
+      "sha256": "ae76412057b8cda4a6c6aa0f86ed7f4137f7f3303363bd6a6f4866562cce17ea",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "hardware/.config/systemd/user/stay-awake.service",
+      "source": "home:.config/systemd/user/stay-awake.service",
+      "sha256": "d9125af885318c68892f2f1b02cecb74128bb61a5fea7a6c3605a18a2c268fe0",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "hardware/.config/systemd/user/pipewire.service.d/10-sof-hda-alsa-init.conf",
+      "source": "home:.config/systemd/user/pipewire.service.d/10-sof-hda-alsa-init.conf",
+      "sha256": "d129ddb507e4f4c14437e7e54cc9d2d70801455fa5bb8d1d27282435234063c2",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "hardware/.config/systemd/user/pipewire-pulse.service.d/10-sof-hda-alsa-init.conf",
+      "source": "home:.config/systemd/user/pipewire-pulse.service.d/10-sof-hda-alsa-init.conf",
+      "sha256": "d129ddb507e4f4c14437e7e54cc9d2d70801455fa5bb8d1d27282435234063c2",
+      "mode": "0o664",
+      "symlink": null
+    },
+    {
+      "path": "system/etc/sddm.conf.d/10-wayland-greeter.conf",
+      "source": "system:etc/sddm.conf.d/10-wayland-greeter.conf",
+      "sha256": "9029dfb4535ade01012d141fd32e663d1e0a53ac9bfa1fe86ec17479021dbbb6",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/etc/sddm.conf.d/90-omarchy-debian.conf",
+      "source": "system:etc/sddm.conf.d/90-omarchy-debian.conf",
+      "sha256": "532f34fe4db9b56edaa47ee26733d755299a03a912e30c58ab77c3b03310de36",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/etc/profile.d/omarchy-debian.sh",
+      "source": "system:etc/profile.d/omarchy-debian.sh",
+      "sha256": "9be6f436038462dce46db0a31bb764de66cbb2406e046724b6ec69a2bba6056b",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/etc/pam.d/omarchy-lock-password",
+      "source": "system:etc/pam.d/omarchy-lock-password",
+      "sha256": "036ce54b464477978f1fc102424fe0671118cb4014615c69f57736106ed8a13c",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/etc/fastfetch/config.jsonc",
+      "source": "system:etc/fastfetch/config.jsonc",
+      "sha256": "31c3f90562f3986894f1c3dd5d0be53a203cf6b474236010e45840d6c6dc65cf",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/usr/lib/systemd/system-sleep/unmount-fuse",
+      "source": "system:usr/lib/systemd/system-sleep/unmount-fuse",
+      "sha256": "ab7034106e456e93dfb01c6948706c0bfcf0f19e6c9b4c2335b5fb1b3e7ec177",
+      "mode": "0o755",
+      "symlink": null
+    },
+    {
+      "path": "system/usr/share/uwsm/env.d/10-omarchy",
+      "source": "system:usr/share/uwsm/env.d/10-omarchy",
+      "sha256": "9c324063a7c40c7ad4fffb71b612c93bda9e989114667599cd2d76920b4653e0",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/usr/lib/environment.d/10-omarchy-fcitx.conf",
+      "source": "system:usr/lib/environment.d/10-omarchy-fcitx.conf",
+      "sha256": "8b077b6ea2594dc1d4b57592a3bc62703df4959e86b93ea0fc488b6686309095",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/usr/share/fontconfig/conf.avail/50-omarchy.conf",
+      "source": "system:usr/share/fontconfig/conf.avail/50-omarchy.conf",
+      "sha256": "d572d3dc9c31b9ca127f2ee32550fad9e9e5932bb2b7d718a997624e9f806516",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/etc/fonts/conf.d/50-omarchy.conf",
+      "source": "system:etc/fonts/conf.d/50-omarchy.conf",
+      "sha256": "fa31639e1b448fa4f5799573dcb4fc5489c7c04db41bacc4f49b5a0cad3766c6",
+      "mode": "0o777",
+      "symlink": "/usr/share/fontconfig/conf.avail/50-omarchy.conf"
+    },
+    {
+      "path": "system/usr/lib/systemd/oomd.conf.d/10-omarchy.conf",
+      "source": "system:usr/lib/systemd/oomd.conf.d/10-omarchy.conf",
+      "sha256": "8c1ec280168b3a7bf7d5e6b6e8621b35e24f8d9f28fd8a30c71f90fef5c4833a",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/usr/lib/systemd/system.conf.d/20-omarchy-nofile.conf",
+      "source": "system:usr/lib/systemd/system.conf.d/20-omarchy-nofile.conf",
+      "sha256": "8818b84990ce08b9409ef4db4ea971c9c82fad4562e61bb2f52d838127654ee3",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/usr/lib/systemd/user.conf.d/20-omarchy-nofile.conf",
+      "source": "system:usr/lib/systemd/user.conf.d/20-omarchy-nofile.conf",
+      "sha256": "8818b84990ce08b9409ef4db4ea971c9c82fad4562e61bb2f52d838127654ee3",
+      "mode": "0o644",
+      "symlink": null
+    },
+    {
+      "path": "system/etc/modprobe.d/nvidia.conf",
+      "source": "system:etc/modprobe.d/nvidia.conf",
+      "sha256": "dc5079ef30b25f77bc05ba1521cc226d1310c4ff8dc3b4324cc47eae1c06cea7",
+      "mode": "0o644",
+      "symlink": null
+    }
+  ],
+  "upstream_commit": "c668141e9c42b13c80c9ca4ea108e11708c5e8a5"
+}

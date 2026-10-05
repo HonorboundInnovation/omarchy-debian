@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy hibernation setup'; exit 0; fi
+(( $# == 0 )) || { echo 'Usage: omarchy hibernation setup' >&2; exit 2; }
+
+bridge_bin=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+if "$bridge_bin/omarchy-hibernation-available"; then
+  echo 'Debian hibernation resume is already configured for the active swap partition.'
+  exit 0
+fi
+
+[[ -r /sys/power/state && -r /sys/power/image_size ]] && grep -qw disk /sys/power/state || {
+  echo 'Kernel hibernation is unavailable.' >&2
+  exit 1
+}
+swap_uuid=$(awk '$1 ~ /^UUID=/ && $3 == "swap" { sub(/^UUID=/, "", $1); print $1; exit }' /etc/fstab)
+[[ -n $swap_uuid ]] || { echo 'No UUID-based swap partition found in /etc/fstab.' >&2; exit 1; }
+if [[ -e /etc/initramfs-tools/conf.d/resume ]]; then
+  echo 'Existing Debian resume configuration needs review; leaving it unchanged.' >&2
+  exit 1
+fi
+
+temp=$(mktemp)
+trap 'rm -f -- "$temp"' EXIT
+printf '# Managed by Omarchy Debian\nRESUME=UUID=%s\n' "$swap_uuid" >"$temp"
+sudo install -m 0644 -- "$temp" /etc/initramfs-tools/conf.d/omarchy-resume
+sudo /usr/sbin/update-initramfs -u -k all
+echo 'Hibernation resume configured. Reboot before testing systemctl hibernate.'

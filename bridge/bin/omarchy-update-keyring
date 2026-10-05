@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy update keyring'; exit 0; fi
+(( $# == 0 )) || { echo 'Usage: omarchy update keyring' >&2; exit 2; }
+sudo apt-get update
+exec sudo apt-get install --only-upgrade -- debian-archive-keyring

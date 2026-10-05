@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# This is a read-only union query for Omarchy's package guards. All package
+# changes still go through APT on Debian or real pacman inside the Arch box.
+cache_dir=${OMARCHY_ARCH_CACHE:-$HOME/.cache/omarchy-debian-bridge}
+visible_file=$cache_dir/arch-exported
+debian_pacman=${OMARCHY_DEBIAN_PACMAN:-/usr/bin/pacman}
+mode=${1:-}
+[[ $mode == -Q* ]] || {
+  echo 'Host pacman is a read-only Omarchy query. Use apt or omarchy-arch.' >&2
+  exit 2
+}
+
+if (( $# == 1 )); then
+  case "$mode" in
+    -Qq)
+      {
+        dpkg-query -W -f='${db:Status-Abbrev}\t${binary:Package}\n' 2>/dev/null |
+          awk -F '\t' 'substr($1, 2, 1) == "i" { print $2 }'
+        [[ ! -f $visible_file ]] || cat "$visible_file"
+      } | sort -u
+      exit 0
+      ;;
+    -Qi)
+      dpkg-query -W -f='${db:Status-Abbrev}\t${binary:Package}\t${Provides}\n' 2>/dev/null |
+        awk -F '\t' 'substr($1, 2, 1) == "i" { printf "Name : %s\nProvides : %s\n\n", $2, $3 }'
+      if [[ -f $visible_file && -f $cache_dir/arch-info ]]; then
+        awk -v names="$visible_file" '
+          BEGIN { while ((getline n < names) > 0) visible[n] = 1 }
+          /^Name[[:space:]]*:/ {
+            name = $0
+            sub(/^[^:]*:[[:space:]]*/, "", name)
+            selected = (name in visible)
+          }
+          selected { print }
+        ' "$cache_dir/arch-info"
+      fi
+      exit 0
+      ;;
+    -Q)
+      dpkg-query -W -f='${db:Status-Abbrev}\t${binary:Package}\t${Version}\n' 2>/dev/null |
+        awk -F '\t' 'substr($1, 2, 1) == "i" { print $2, $3 }'
+      if [[ -f $visible_file && -f $cache_dir/arch-versions ]]; then
+        awk 'NR == FNR { visible[$1] = 1; next } $1 in visible' "$visible_file" "$cache_dir/arch-versions"
+      fi
+      exit 0
+      ;;
+  esac
+fi
+
+# Check each requested package independently. A partial Debian result must not
+# hide a missing package or prevent a second package from being found in Arch.
+if [[ $mode == -Q || $mode == -Qq || $mode == -Qi ]]; then
+  requests=("${@:2}")
+  if [[ ${requests[0]:-} == -- ]]; then requests=("${requests[@]:1}"); fi
+  if (( ${#requests[@]} > 1 )); then
+    status=0
+    for requested in "${requests[@]}"; do
+      "$0" "$mode" -- "$requested" || status=1
+    done
+    exit "$status"
+  fi
+fi
+
+# Let the Debian adapter answer its mapped package names first. Query the Arch
+# box for names absent from Debian, including version-constrained names.
+if debian_result=$("$debian_pacman" "$@" 2>/dev/null) && [[ -n $debian_result ]]; then
+  if [[ $mode == -Q ]]; then
+    printf '%s\n' "$debian_result" | awk 'NF > 1'
+  else
+    printf '%s\n' "$debian_result"
+  fi
+  exit 0
+fi
+if [[ $mode == -Q || $mode == -Qq || $mode == -Qi ]] && [[ -f $cache_dir/arch-versions && -f $visible_file ]]; then
+  pkg=${2:-}
+  [[ $pkg == -- ]] && pkg=${3:-}
+  if [[ -n $pkg && $pkg != *[\<\>=]* ]] && grep -Fxq -- "$pkg" "$visible_file"; then
+    version=$(awk -v name="$pkg" '$1 == name { print; exit }' "$cache_dir/arch-versions")
+    if [[ -n $version ]]; then
+      case "$mode" in
+        -Qq) printf '%s\n' "$pkg" ;;
+        -Q) printf '%s\n' "$version" ;;
+        -Qi)
+          awk -v target="$pkg" '
+            /^Name[[:space:]]*:/ {
+              name = $0
+              sub(/^[^:]*:[[:space:]]*/, "", name)
+              selected = (name == target)
+            }
+            selected { print }
+            selected && /^$/ { exit }
+          ' "$cache_dir/arch-info"
+          ;;
+      esac
+      exit 0
+    fi
+  fi
+fi
+if [[ $mode == -Q || $mode == -Qq || $mode == -Qi ]]; then exit 1; fi
+if command -v podman >/dev/null && podman container exists "${OMARCHY_ARCH_BOX:-omarchy-arch}" 2>/dev/null; then
+  exec distrobox enter --name "${OMARCHY_ARCH_BOX:-omarchy-arch}" -- /usr/bin/pacman "$@"
+fi
+exit 1

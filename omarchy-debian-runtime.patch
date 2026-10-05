@@ -1,0 +1,134 @@
+diff --git i/bin/omarchy-menu-keybindings w/bin/omarchy-menu-keybindings
+index 4269a831..23dbdb55 100755
+--- i/bin/omarchy-menu-keybindings
++++ w/bin/omarchy-menu-keybindings
+@@ -27,8 +27,25 @@ parse_keycodes() {
+       while ((keymap_cmd | getline line) > 0) {
+         if (line ~ /xkb_keycodes/) { section = "codes"; continue }
+         if (line ~ /xkb_symbols/)  { section = "syms";  continue }
+-        if (section == "codes" && match(line, /<([A-Za-z0-9_]+)>\s*=\s*([0-9]+)\s*;/, m)) code_by_name[m[1]] = m[2]
+-        if (section == "syms" && match(line, /key\s*<([A-Za-z0-9_]+)>\s*\{\s*\[\s*([^, \]]+)/, m)) sym_by_name[m[1]] = m[2]
++        if (section == "codes" && match(line, /<[A-Za-z0-9_]+>[[:space:]]*=[[:space:]]*[0-9]+[[:space:]]*;/)) {
++          entry = substr(line, RSTART, RLENGTH)
++          name = entry
++          sub(/^</, "", name)
++          sub(/>.*/, "", name)
++          code = entry
++          sub(/^.*=[[:space:]]*/, "", code)
++          sub(/[[:space:]]*;.*/, "", code)
++          code_by_name[name] = code
++        }
++        if (section == "syms" && match(line, /key[[:space:]]*<[A-Za-z0-9_]+>[[:space:]]*\{[[:space:]]*\[[[:space:]]*[A-Za-z0-9_]+/)) {
++          entry = substr(line, RSTART, RLENGTH)
++          name = entry
++          sub(/^.*</, "", name)
++          sub(/>.*/, "", name)
++          symbol = entry
++          sub(/^.*\[[[:space:]]*/, "", symbol)
++          sym_by_name[name] = symbol
++        }
+       }
+       close(keymap_cmd)
+ 
+@@ -43,13 +60,13 @@ parse_keycodes() {
+       mouse_symbol["274"] = "MIDDLE MOUSE BUTTON"
+     }
+     {
+-      if (match($0, /code:([0-9]+)/, match_parts)) {
+-        code = match_parts[1]
++      if (match($0, /code:[0-9]+/)) {
++        code = substr($0, RSTART + 5, RLENGTH - 5)
+         symbol = keycode_symbol[code]
+         if (symbol == "") symbol = "code:" code
+         sub("code:" code, symbol)
+-      } else if (match($0, /mouse:([0-9]+)/, match_parts)) {
+-        code = match_parts[1]
++      } else if (match($0, /mouse:[0-9]+/)) {
++        code = substr($0, RSTART + 6, RLENGTH - 6)
+         symbol = mouse_symbol[code]
+         if (symbol == "") symbol = "mouse:" code
+         sub("mouse:" code, symbol)
+diff --git i/default/sddm/omarchy/Main.qml w/default/sddm/omarchy/Main.qml
+index e593c1f3..f06562f2 100644
+--- i/default/sddm/omarchy/Main.qml
++++ w/default/sddm/omarchy/Main.qml
+@@ -1,4 +1,5 @@
+ import QtQuick 2.0
++import QtQml.Models 2.15
+ import SddmComponents 2.0
+ 
+ Rectangle {
+@@ -9,13 +10,19 @@ Rectangle {
+ 
+   property string currentUser: userModel.lastUser
+   property bool loginFailed: false
+-  property int sessionIndex: {
+-    for (var i = 0; i < sessionModel.rowCount(); i++) {
+-      var name = (sessionModel.data(sessionModel.index(i, 0), Qt.DisplayRole) || "").toString()
+-      if (name.indexOf("uwsm") !== -1)
+-        return i
++  property int sessionIndex: sessionModel.lastIndex
++  property bool userPickedSession: false
++
++  Instantiator {
++    id: sessionEntries
++    model: sessionModel
++    delegate: QtObject {
++      property string sessionName: model.name
++    }
++    onObjectAdded: (index, object) => {
++      if (!root.userPickedSession && object.sessionName === "Omarchy on Debian")
++        root.sessionIndex = index
+     }
+-    return sessionModel.lastIndex
+   }
+ 
+   Connections {
+@@ -34,6 +41,27 @@ Rectangle {
+     anchors.centerIn: parent
+     spacing: 40
+ 
++    Text {
++      anchors.horizontalCenter: parent.horizontalCenter
++      text: root.sessionIndex >= 0 && root.sessionIndex < sessionEntries.count
++        ? sessionEntries.objectAt(root.sessionIndex).sessionName
++        : ""
++      color: "#a9b1d6"
++      font.family: "JetBrainsMono Nerd Font"
++      font.pixelSize: 14
++
++      MouseArea {
++        anchors.fill: parent
++        cursorShape: Qt.PointingHandCursor
++        onClicked: {
++          if (sessionEntries.count > 0) {
++            root.userPickedSession = true
++            root.sessionIndex = (root.sessionIndex + 1) % sessionEntries.count
++          }
++        }
++      }
++    }
++
+     Image {
+       id: logo
+       source: "logo.png"
+diff --git i/shell/plugins/notifications/Service.qml w/shell/plugins/notifications/Service.qml
+index 0122310e..13a3a08c 100644
+--- i/shell/plugins/notifications/Service.qml
++++ w/shell/plugins/notifications/Service.qml
+@@ -146,11 +146,11 @@ Item {
+   // screen; the distinction only decides whether a DND-silenced one is worth
+   // recording at all.
+   function isEphemeral(notification) {
+-    var transient = false
++    var isTransient = false
+     try {
+-      transient = !!(notification.hints && notification.hints["transient"])
+-    } catch (e) { transient = false }
+-    return transient || NotificationLogic.isEphemeralApp(String(notification.appName || ""))
++      isTransient = !!(notification.hints && notification.hints["transient"])
++    } catch (e) { isTransient = false }
++    return isTransient || NotificationLogic.isEphemeralApp(String(notification.appName || ""))
+   }
+ 
+   function handleNotification(notification) {

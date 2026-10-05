@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy hibernation remove'; exit 0; fi
+(( $# == 0 )) || { echo 'Usage: omarchy hibernation remove' >&2; exit 2; }
+
+managed=/etc/initramfs-tools/conf.d/omarchy-resume
+if [[ ! -e $managed ]]; then
+  echo 'No Omarchy-managed hibernation configuration exists.'
+  exit 0
+fi
+grep -q '^# Managed by Omarchy Debian$' "$managed" || {
+  echo "Refusing to remove an unrecognized resume configuration: $managed" >&2
+  exit 1
+}
+sudo rm -- "$managed"
+sudo /usr/sbin/update-initramfs -u -k all
+echo 'Omarchy-managed hibernation resume configuration removed.'

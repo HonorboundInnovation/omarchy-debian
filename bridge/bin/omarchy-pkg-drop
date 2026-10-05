@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+if [[ ${1:-} == -h || ${1:-} == --help || $# == 0 ]]; then
+  echo 'Usage: omarchy pkg drop PACKAGE...'
+  exit 0
+fi
+
+for pkg in "$@"; do
+  if /usr/bin/pacman -Q -- "$pkg" >/dev/null 2>&1; then
+    /usr/bin/omarchy-pkg-remove "$pkg"
+  elif omarchy-arch run /usr/bin/pacman -Q -- "$pkg" >/dev/null 2>&1; then
+    omarchy-arch remove "$pkg"
+  fi
+done

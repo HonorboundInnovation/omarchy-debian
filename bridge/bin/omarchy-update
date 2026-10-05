@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then
+  echo 'Usage: omarchy update [-y|--yes]'
+  exit 0
+fi
+yes_arg=()
+case "${1:-}" in
+  '') ;;
+  -y|--yes) yes_arg=(-y); shift ;;
+  *) echo 'Usage: omarchy update [-y|--yes]' >&2; exit 2 ;;
+esac
+(( $# == 0 )) || { echo 'Usage: omarchy update [-y|--yes]' >&2; exit 2; }
+sudo apt-get update
+if command -v timeshift >/dev/null && command -v omarchy-snapshot >/dev/null && omarchy-snapshot configured; then
+  omarchy-snapshot create
+fi
+sudo apt-get full-upgrade "${yes_arg[@]}"
+omarchy-arch update "${yes_arg[@]}"
+if command -v omarchy-update-restart >/dev/null; then
+  omarchy-update-restart
+fi

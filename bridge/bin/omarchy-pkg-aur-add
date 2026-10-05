@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then
+  echo 'Usage: omarchy pkg aur add PACKAGE...'
+  exit 0
+fi
+exec omarchy-arch aur "$@"

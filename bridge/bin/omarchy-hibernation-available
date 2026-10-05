@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy hibernation available'; exit 0; fi
+(( $# == 0 )) || exit 2
+
+[[ -r /sys/power/state && -r /sys/power/image_size ]] || exit 1
+grep -qw disk /sys/power/state || exit 1
+resume_file=''
+for candidate in /etc/initramfs-tools/conf.d/omarchy-resume /etc/initramfs-tools/conf.d/resume; do
+  if [[ -r $candidate ]] && grep -q '^RESUME=UUID=' "$candidate"; then
+    resume_file=$candidate
+    break
+  fi
+done
+[[ -n $resume_file ]] || exit 1
+resume_uuid=$(sed -n 's/^RESUME=UUID=\([^[:space:]]*\).*/\1/p' "$resume_file" | head -1)
+awk -v uuid="$resume_uuid" '$1 == "UUID=" uuid && $3 == "swap" { found = 1 } END { exit !found }' /etc/fstab || exit 1
+swap_kib=$(awk 'NR > 1 && $1 !~ /zram/ { size += $3 } END { print size + 0 }' /proc/swaps)
+(( swap_kib * 1024 > $(cat /sys/power/image_size) ))

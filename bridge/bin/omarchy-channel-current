@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+file=${XDG_CONFIG_HOME:-$HOME/.config}/omarchy-debian/channel
+if [[ -f $file ]]; then
+  read -r channel < "$file"
+  case $channel in stable|rc|edge) echo "$channel"; exit 0;; esac
+fi
+echo stable

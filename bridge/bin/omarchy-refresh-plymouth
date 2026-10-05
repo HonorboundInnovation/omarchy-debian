@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy refresh plymouth'; exit 0; fi
+(( $# == 0 )) || { echo 'Usage: omarchy refresh plymouth' >&2; exit 2; }
+exec omarchy-plymouth-set --refresh-default

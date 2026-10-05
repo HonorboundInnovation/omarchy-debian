@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+  echo 'Usage: omarchy pkg remove [--debian|--arch PACKAGE...]'
+}
+
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then usage; exit 0; fi
+
+if (( $# == 0 )); then
+  command -v fzf >/dev/null || { echo 'fzf is required for interactive removal.' >&2; exit 2; }
+  cache_dir=${OMARCHY_ARCH_CACHE:-$HOME/.cache/omarchy-debian-bridge}
+  selection=$({
+    dpkg-query -W -f='debian:${binary:Package}\n' 2>/dev/null
+    if [[ -f $cache_dir/arch-exported ]]; then sed 's/^/arch:/' "$cache_dir/arch-exported"; fi
+  } | sort -u | fzf --prompt='Installed package > ') || exit 0
+  [[ -n $selection ]] || exit 0
+  case "$selection" in
+    debian:*) exec /usr/bin/omarchy-pkg-remove "${selection#debian:}" ;;
+    arch:*) exec omarchy-arch remove "${selection#arch:}" ;;
+  esac
+fi
+
+source=${1:-}
+case "$source" in
+  --debian) shift; (( $# )) || { usage; exit 2; }; exec /usr/bin/omarchy-pkg-remove "$@" ;;
+  --arch) shift; (( $# )) || { usage; exit 2; }; exec omarchy-arch remove "$@" ;;
+esac
+
+# Retain the Debian adapter's package-name mappings when the caller omits a
+# source. This avoids treating an Arch alias such as nvim as an Arch package.
+for pkg in "$@"; do
+  if /usr/bin/pacman -Q -- "$pkg" >/dev/null 2>&1; then
+    /usr/bin/omarchy-pkg-remove "$pkg"
+  elif omarchy-arch run /usr/bin/pacman -Q -- "$pkg" >/dev/null 2>&1; then
+    omarchy-arch remove "$pkg"
+  else
+    echo "Package '$pkg' is not installed in Debian or Arch." >&2
+    exit 1
+  fi
+done

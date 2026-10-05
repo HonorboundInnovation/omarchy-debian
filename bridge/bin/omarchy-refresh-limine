@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy refresh limine'; exit 0; fi
+(( $# == 0 )) || { echo 'Usage: omarchy refresh limine' >&2; exit 2; }
+echo 'Refreshing Debian GRUB boot entries.'
+exec sudo /usr/sbin/update-grub

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+bridge_bin=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+
+# The packaged dispatcher searches /usr/bin directly. Intercept only the
+# Debian/Arch bridge routes and leave all other Omarchy commands intact.
+case "${1:-} ${2:-} ${3:-}" in
+  'pkg aur add') shift 3; exec "$bridge_bin/omarchy-pkg-aur-add" "$@" ;;
+  'pkg aur install') shift 3; exec "$bridge_bin/omarchy-pkg-aur-install" "$@" ;;
+  'pkg drop '*) shift 2; exec "$bridge_bin/omarchy-pkg-drop" "$@" ;;
+  'pkg remove '*) shift 2; exec "$bridge_bin/omarchy-pkg-remove" "$@" ;;
+  'pkg install '*)
+    shift 2
+    exec "$bridge_bin/omarchy-pkg-install" "$@"
+    ;;
+  'update available '*) shift 2; exec "$bridge_bin/omarchy-update-available" "$@" ;;
+  'update aur pkgs') shift 3; exec "$bridge_bin/omarchy-update-aur-pkgs" "$@" ;;
+  'snapshot '*) shift; exec "$bridge_bin/omarchy-snapshot" "$@" ;;
+  'hibernation available '*) shift 2; exec "$bridge_bin/omarchy-hibernation-available" "$@" ;;
+  'hibernation setup '*) shift 2; exec "$bridge_bin/omarchy-hibernation-setup" "$@" ;;
+  'hibernation remove '*) shift 2; exec "$bridge_bin/omarchy-hibernation-remove" "$@" ;;
+  'refresh limine '*) shift 2; exec "$bridge_bin/omarchy-refresh-limine" "$@" ;;
+  'refresh plymouth '*) shift 2; exec "$bridge_bin/omarchy-refresh-plymouth" "$@" ;;
+  'plymouth set '*) shift 2; exec "$bridge_bin/omarchy-plymouth-set" "$@" ;;
+  'update keyring '*) shift 2; exec "$bridge_bin/omarchy-update-keyring" "$@" ;;
+  'update restart '*) shift 2; exec "$bridge_bin/omarchy-update-restart" "$@" ;;
+  'update pkg prune') shift 3; exec "$bridge_bin/omarchy-update-pkg-prune" "$@" ;;
+  'update orphan pkgs') shift 3; exec "$bridge_bin/omarchy-update-orphan-pkgs" "$@" ;;
+  'channel current '*) shift 2; exec "$bridge_bin/omarchy-channel-current" "$@" ;;
+  'channel set '*) shift 2; exec "$bridge_bin/omarchy-channel-set" "$@" ;;
+  'release stage '*) shift 2; exec "$bridge_bin/omarchy-release-stage" "$@" ;;
+  'update  '|'update -y '|'update --yes ')
+    shift
+    exec "$bridge_bin/omarchy-update" "$@"
+    ;;
+esac
+exec /usr/bin/omarchy "$@"

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == --help || ${1:-} == -h ]]; then
+  echo 'Usage: omarchy channel set <stable|rc|edge>'
+  exit 0
+fi
+[[ $# == 1 ]] || { echo 'Usage: omarchy channel set <stable|rc|edge>' >&2; exit 2; }
+case $1 in
+  stable|rc|edge) ;;
+  dev) echo 'The upstream dev checkout cannot be used as a Debian system package channel. Use a separate development checkout.' >&2; exit 2 ;;
+  *) echo "Unknown channel: $1" >&2; exit 2 ;;
+esac
+file=${XDG_CONFIG_HOME:-$HOME/.config}/omarchy-debian/channel
+mkdir -p -- "${file%/*}"
+printf '%s\n' "$1" > "$file.tmp"
+mv -f -- "$file.tmp" "$file"
+echo "Omarchy Debian source channel: $1"
+echo 'Run omarchy release stage to fetch and check the next source revision.'

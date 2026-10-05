@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Read-only pacman query compatibility for Omarchy menu guards on Debian.
+# Any package-changing pacman operation is deliberately refused.
+set -euo pipefail
+
+debian_name() {
+  case "$1" in
+    nvim) echo neovim ;;
+    avahi) echo avahi-daemon ;;
+    bluez-utils) echo bluez ;;
+    libreoffice-fresh) echo libreoffice ;;
+    docker) echo docker.io ;;
+    docker-compose) echo docker-compose ;;
+    fd) echo fd-find ;;
+    fcitx5-gtk) echo fcitx5-frontend-gtk3 ;;
+    fcitx5-qt) echo fcitx5-frontend-qt5 ;;
+    libsecret) echo libsecret-tools ;;
+    libyaml) echo libyaml-0-2 ;;
+    mariadb-libs) echo libmariadb3 ;;
+    networkmanager) echo network-manager ;;
+    noto-fonts) echo fonts-noto-core ;;
+    noto-fonts-cjk) echo fonts-noto-cjk ;;
+    noto-fonts-emoji) echo fonts-noto-color-emoji ;;
+    python-gobject) echo python3-gi ;;
+    python-poetry-core) echo python3-poetry-core ;;
+    lua51) echo lua5.1 ;;
+    postgresql-libs) echo libpq5 ;;
+    qemu-user-static-binfmt) echo qemu-user-binfmt ;;
+    qt6-imageformats) echo qt6-image-formats-plugins ;;
+    tesseract) echo tesseract-ocr ;;
+    tesseract-data-eng) echo tesseract-ocr-eng ;;
+    tldr) echo tealdeer ;;
+    woff2-font-awesome) echo fonts-font-awesome ;;
+    yaru-icon-theme) echo yaru-theme-icon ;;
+    zbar) echo zbar-tools ;;
+    *) echo "$1" ;;
+  esac
+}
+
+mode=${1:-}
+[[ $mode == -Q* ]] || { echo "pacman is unavailable on Debian; use apt or omarchy-pkg-add." >&2; exit 2; }
+query_info=0
+query_quiet=0
+args=()
+mode_flags=${mode#-Q}
+[[ $mode_flags == *i* ]] && query_info=1
+[[ $mode_flags == *q* ]] && query_quiet=1
+shift
+while (($#)); do
+  case "$1" in
+    -i|-Qi) query_info=1 ;;
+    -q|-Qq) query_quiet=1 ;;
+    -Q*)
+      mode_flags=${1#-Q}
+      [[ $mode_flags == *i* ]] && query_info=1
+      [[ $mode_flags == *q* ]] && query_quiet=1
+      ;;
+    --) ;;
+    -*) ;;
+    *) args+=("$(debian_name "$1")") ;;
+  esac
+  shift
+done
+
+if (( query_info )); then
+  packages=("${args[@]}")
+  if ((${#packages[@]} == 0)); then
+    mapfile -t packages < <(dpkg-query -W -f='${binary:Package}\n' 2>/dev/null)
+  fi
+  for package in "${packages[@]}"; do
+    dpkg-query -W -f='Name : ${binary:Package}\nProvides : ${Provides}\n\n' "$package" 2>/dev/null || true
+  done
+elif ((${#args[@]})); then
+  for package in "${args[@]}"; do
+    if dpkg-query -W -f='${binary:Package}\n' "$package" 2>/dev/null; then
+      (( query_quiet )) || dpkg-query -W -f='${binary:Package} ${Version}\n' "$package"
+    else
+      exit 1
+    fi
+  done
+else
+  if (( query_quiet )); then
+    dpkg-query -W -f='${binary:Package}\n'
+  else
+    dpkg-query -W -f='${binary:Package} ${Version}\n'
+  fi
+fi

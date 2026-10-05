@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy update pkg prune'; exit 0; fi
+(( $# == 0 )) || { echo 'Usage: omarchy update pkg prune' >&2; exit 2; }
+exec sudo apt-get autoclean

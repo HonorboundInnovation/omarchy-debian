@@ -17,6 +17,12 @@ readonly BACKPORTS_FILE="/etc/apt/sources.list.d/omarchy-debian-backports.source
 readonly COMPONENTS_FILE="/etc/apt/sources.list.d/omarchy-debian-components.sources"
 readonly BACKPORTS_COMPONENTS_FILE="/etc/apt/sources.list.d/omarchy-debian-backports-components.sources"
 readonly PACKAGE_REPORT="$CACHE_DIR/package-install-report.log"
+SCRIPT_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+readonly SCRIPT_ROOT
+readonly SKILLS_INSTALLER="$SCRIPT_ROOT/install-omarchy-debian-skills.py"
+readonly RUNTIME_PATCH="$SCRIPT_ROOT/omarchy-debian-runtime.patch"
+readonly ASSETS_DIR="$SCRIPT_ROOT/omarchy-debian-assets"
+readonly THEME_ASSETS="$ASSETS_DIR/themes/neural-acid"
 
 SOURCE_BUILDS=1
 SOURCE_BUILD_LOG="$CACHE_DIR/source-builds.log"
@@ -24,6 +30,33 @@ SOURCE_BUILD_LOG="$CACHE_DIR/source-builds.log"
 say() { printf '\n\033[1;36m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33mWarning:\033[0m %s\n' "$*" >&2; }
 die() { printf '\033[1;31mError:\033[0m %s\n' "$*" >&2; exit 1; }
+
+# KDE uses applications.menu to index desktop entries for Dolphin's Open With
+# dialog, even outside Plasma. Debian only ships prefixed menus.
+install_kde_application_menu() {
+  local config_root="$1" menu source_menu
+  menu="$config_root/menus/applications.menu"
+  # Preserve custom menus, including symlinks managed by the user.
+  [[ ! -e $menu && ! -L $menu ]] || return 0
+  mkdir -p "$config_root/menus"
+  for source_menu in /etc/xdg/menus/plasma-applications.menu /etc/xdg/menus/kf5-applications.menu; do
+    if [[ -r $source_menu ]]; then
+      ln -s "$source_menu" "$menu"
+      return 0
+    fi
+  done
+  # A minimal menu also works on Debian installations without Plasma packages.
+  cat >"$menu" <<'KDE_MENU'
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+  "http://www.freedesktop.org/standards/menu-spec/1.0/menu.dtd">
+<Menu>
+  <Name>Applications</Name>
+  <DefaultAppDirs/>
+  <DefaultDirectoryDirs/>
+  <Include><All/></Include>
+</Menu>
+KDE_MENU
+}
 
 usage() {
   cat <<'USAGE'
@@ -48,6 +81,12 @@ done
 [[ $EUID -ne 0 ]] || die "Run this as your regular desktop user. It will use sudo for system changes."
 command -v sudo >/dev/null || die "Install sudo first, then run this script as your regular user."
 command -v apt-get >/dev/null || die "This installer requires Debian's apt package manager."
+[[ -x $SCRIPT_ROOT/adapters/pacman ]] || die "Missing Debian package-query adapter"
+[[ -f $SKILLS_INSTALLER ]] || die "Missing companion file: $SKILLS_INSTALLER"
+[[ -f $RUNTIME_PATCH ]] || die "Missing companion file: $RUNTIME_PATCH"
+[[ -f $THEME_ASSETS/colors.toml && -f $THEME_ASSETS/backgrounds/neural-core.png ]] || \
+  die "Missing Neural Acid theme assets: $THEME_ASSETS"
+[[ -f $ASSETS_DIR/foot.ini.tpl ]] || die "Missing companion file: $ASSETS_DIR/foot.ini.tpl"
 [[ -r /etc/os-release ]] || die "Cannot identify this operating system."
 # shellcheck disable=SC1091
 . /etc/os-release
@@ -57,41 +96,80 @@ command -v apt-get >/dev/null || die "This installer requires Debian's apt packa
 sudo -v
 mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications" "$HOME/.local/share/icons" "$CACHE_DIR"
 export PATH="$HOME/.local/bin:$PATH"
+if ! command -v python3 >/dev/null 2>&1; then
+  sudo apt-get update
+  sudo apt-get install -y -- python3
+fi
 
 say "Preparing Debian package sources"
-# Trixie's default installer source often enables main and
-# non-free-firmware. Add Debian's official contrib/non-free indexes too, plus
-# backports for the Hyprland desktop stack. These files are installer-owned.
-sudo tee "$COMPONENTS_FILE" >/dev/null <<'SOURCES'
-Types: deb
-URIs: https://deb.debian.org/debian
-Suites: trixie trixie-updates
-Components: contrib non-free
-Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+# Add only components absent from the machine's existing sources. On this
+# system /etc/apt/sources.list already provides contrib and non-free; adding
+# duplicate Deb822 stanzas caused APT warnings, so the extra source was disabled.
+python3 - "$CACHE_DIR" "$COMPONENTS_FILE" "$BACKPORTS_FILE" "$BACKPORTS_COMPONENTS_FILE" <<'PY'
+import pathlib
+import re
+import sys
 
-Types: deb
-URIs: https://security.debian.org/debian-security
-Suites: trixie-security
-Components: contrib non-free
-Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
-SOURCES
+cache = pathlib.Path(sys.argv[1])
+managed = {pathlib.Path(item) for item in sys.argv[2:]}
+available = {}
+files = [pathlib.Path('/etc/apt/sources.list')]
+files.extend(pathlib.Path('/etc/apt/sources.list.d').glob('*.list'))
+files.extend(pathlib.Path('/etc/apt/sources.list.d').glob('*.sources'))
+for path in files:
+    if path in managed or not path.is_file():
+        continue
+    text = path.read_text(errors='replace')
+    if path.suffix == '.sources':
+        for stanza in re.split(r'\n\s*\n', text):
+            fields = {}
+            for line in stanza.splitlines():
+                if ':' in line and not line.startswith((' ', '#')):
+                    key, value = line.split(':', 1)
+                    fields[key.lower()] = value.strip()
+            if 'deb' not in fields.get('types', '').split() or fields.get('enabled', 'yes') == 'no':
+                continue
+            for suite in fields.get('suites', '').split():
+                available.setdefault(suite, set()).update(fields.get('components', '').split())
+    else:
+        for line in text.splitlines():
+            match = re.match(r'^\s*deb\s+(?:\[[^]]+\]\s+)?\S+\s+(\S+)\s+(.*)$', line)
+            if match:
+                available.setdefault(match.group(1), set()).update(match.group(2).split())
 
-if ! grep -Rqs 'trixie-backports' /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
-  sudo tee "$BACKPORTS_FILE" >/dev/null <<'SOURCES'
-Types: deb
-URIs: https://deb.debian.org/debian
-Suites: trixie-backports
-Components: main
-Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
-SOURCES
-fi
-sudo tee "$BACKPORTS_COMPONENTS_FILE" >/dev/null <<'SOURCES'
-Types: deb
-URIs: https://deb.debian.org/debian
-Suites: trixie-backports
-Components: contrib non-free
-Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
-SOURCES
+def stanza(uri, suite, components):
+    return (f'Types: deb\nURIs: {uri}\nSuites: {suite}\n'
+            f'Components: {" ".join(components)}\n'
+            'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg\n')
+
+base = []
+for suite in ('trixie', 'trixie-updates', 'trixie-security'):
+    missing = sorted({'contrib', 'non-free'} - available.get(suite, set()))
+    if missing:
+        uri = ('https://security.debian.org/debian-security' if suite == 'trixie-security'
+               else 'https://deb.debian.org/debian')
+        base.append(stanza(uri, suite, missing))
+backports = available.get('trixie-backports', set())
+(cache / 'components.sources.new').write_text('\n'.join(base))
+(cache / 'backports.sources.new').write_text(
+    stanza('https://deb.debian.org/debian', 'trixie-backports', ['main'])
+    if 'main' not in backports else '')
+missing = sorted({'contrib', 'non-free'} - backports)
+(cache / 'backports-components.sources.new').write_text(
+    stanza('https://deb.debian.org/debian', 'trixie-backports', missing) if missing else '')
+PY
+for entry in \
+  "$CACHE_DIR/components.sources.new:$COMPONENTS_FILE" \
+  "$CACHE_DIR/backports.sources.new:$BACKPORTS_FILE" \
+  "$CACHE_DIR/backports-components.sources.new:$BACKPORTS_COMPONENTS_FILE"; do
+  generated=${entry%%:*}
+  destination=${entry#*:}
+  if [[ -s $generated ]]; then
+    sudo install -m 0644 "$generated" "$destination"
+  else
+    sudo rm -f -- "$destination"
+  fi
+done
 
 if ! sudo apt-get update; then
   die "APT index refresh failed after configuring Debian Trixie, security, and backports sources. Check network and /etc/apt/sources.list.d/*.sources."
@@ -194,15 +272,15 @@ apt_install_available \
   ruby-full lua5.1 luarocks ripgrep fd-find bat eza zoxide btop fastfetch tmux \
   lazygit plocate man-db unzip zip whois inxi ffmpeg ffmpegthumbnailer starship \
   tealdeer tree-sitter-cli fakeroot alsa-utils bluez-tools cups-pk-helper \
-  gnome-themes-extra gvfs-backends gvfs-fuse inetutils inotify-tools libvips-tools libyaml-0-2 \
-  libmariadb3 libpq5 llvm mpv-mpris nss-mdns pinta plymouth qemu-user-binfmt \
+  gnome-themes-extra gvfs-backends gvfs-fuse inetutils-telnet inotify-tools libvips-tools libyaml-0-2 \
+  libmariadb3 libpq5 llvm mpv-mpris libnss-mdns pinta plymouth qemu-user-binfmt \
   qt6-image-formats-plugins socat udiskie wireless-regdb yaru-theme-gtk yaru-theme-icon \
   imagemagick imv mpv yt-dlp tesseract-ocr tesseract-ocr-eng qrencode zbar-tools \
   grim slurp wl-clipboard wtype brightnessctl ddcutil playerctl pamixer \
   pipewire pipewire-audio pipewire-alsa pipewire-pulse wireplumber pavucontrol \
   xdg-desktop-portal xdg-desktop-portal-gtk qt6-wayland \
   network-manager bluez blueman power-profiles-daemon \
-  gnome-keyring libsecret-tools nautilus nautilus-python sushi \
+  gnome-keyring libsecret-tools nautilus python3-nautilus gnome-sushi dolphin \
   gnome-disk-utility evince libreoffice obs-studio kdenlive xournalpp \
   cups cups-filters system-config-printer avahi-daemon \
   fonts-noto-core fonts-noto-color-emoji fonts-noto-cjk fonts-font-awesome \
@@ -214,7 +292,7 @@ apt_install_available \
 apt_install_available qml6-module-qtquick qml6-module-qtquick-controls \
   qml6-module-qtquick-layouts qml6-module-qtquick-effects qml6-module-qtquick-shapes
 
-apt_install_available docker.io docker-compose-v2 docker-buildx libglib2.0-bin \
+apt_install_available docker.io docker-compose docker-buildx libglib2.0-bin \
   gsettings-desktop-schemas
 apt_install_available fcitx5 fcitx5-frontend-gtk3 fcitx5-frontend-qt5
 apt_install_available fcitx5-frontend-gtk4 fcitx5-frontend-qt6
@@ -223,6 +301,12 @@ apt_install_available nodejs npm golang-go rustup meson ninja-build cmake \
   liblayershellqtinterface-dev libgtk-3-dev libwebkit2gtk-4.1-dev \
   libgtk-4-dev libgtk4-layer-shell-dev libadwaita-1-dev libepoxy-dev \
   libfontconfig1-dev libwayland-dev wayland-protocols libmpv-dev
+
+# Debian enables Waybar by default; Omarchy supplies the initial status bar.
+if systemctl --global is-enabled waybar.service >/dev/null 2>&1; then
+  sudo systemctl --global disable waybar.service || warn "Could not disable Waybar global autostart"
+fi
+systemctl --user disable --now waybar.service >/dev/null 2>&1 || true
 
 if command -v systemctl >/dev/null 2>&1; then
   say "Enabling desktop services"
@@ -246,6 +330,16 @@ else
   git -C "$OMARCHY_DIR" checkout --detach FETCH_HEAD
 fi
 [[ $(git -C "$OMARCHY_DIR" rev-parse HEAD) == "$OMARCHY_COMMIT" ]] || die "Omarchy source revision did not match the pinned release."
+
+# Debian's mawk needs portable match() usage; QML's `transient` name conflicts
+# with a keyword; and SDDM needs a visible session selector on mixed desktops.
+if git -C "$OMARCHY_DIR" apply --reverse --check "$RUNTIME_PATCH" >/dev/null 2>&1; then
+  say "Debian runtime patches are already present"
+else
+  git -C "$OMARCHY_DIR" apply --check "$RUNTIME_PATCH" || \
+    die "Pinned Omarchy source no longer matches $RUNTIME_PATCH"
+  git -C "$OMARCHY_DIR" apply "$RUNTIME_PATCH"
+fi
 
 install_omarchy_nvim_config() {
   local starter_archive="$CACHE_DIR/sources/lazyvim-starter-main.tar.gz"
@@ -306,96 +400,50 @@ for source_path in "$OMARCHY_DIR"/config/*; do
   fi
 done
 
-cat >"$OMARCHY_DIR/bin/pacman" <<'PACMAN'
-#!/usr/bin/env bash
-# Read-only pacman query compatibility for Omarchy menu guards on Debian.
-# Any package-changing pacman operation is deliberately refused.
-set -euo pipefail
+# Reproduce the display scaling, file-manager binding, and terminal key fixes
+# used by the running Debian desktop. Apply them to the default user config,
+# not to the package-owned Omarchy source.
+apply_debian_user_preferences() {
+  local config_root="$1"
+  python3 - "$config_root" <<'PY'
+from pathlib import Path
+import sys
 
-debian_name() {
-  case "$1" in
-    nvim) echo neovim ;;
-    avahi) echo avahi-daemon ;;
-    bluez-utils) echo bluez ;;
-    libreoffice-fresh) echo libreoffice ;;
-    docker) echo docker.io ;;
-    docker-compose) echo docker-compose-v2 ;;
-    fd) echo fd-find ;;
-    fcitx5-gtk) echo fcitx5-frontend-gtk3 ;;
-    fcitx5-qt) echo fcitx5-frontend-qt5 ;;
-    libsecret) echo libsecret-tools ;;
-    libyaml) echo libyaml-0-2 ;;
-    mariadb-libs) echo libmariadb3 ;;
-    networkmanager) echo network-manager ;;
-    noto-fonts) echo fonts-noto-core ;;
-    noto-fonts-cjk) echo fonts-noto-cjk ;;
-    noto-fonts-emoji) echo fonts-noto-color-emoji ;;
-    python-gobject) echo python3-gi ;;
-    python-poetry-core) echo python3-poetry-core ;;
-    lua51) echo lua5.1 ;;
-    postgresql-libs) echo libpq5 ;;
-    qemu-user-static-binfmt) echo qemu-user-binfmt ;;
-    qt6-imageformats) echo qt6-image-formats-plugins ;;
-    tesseract) echo tesseract-ocr ;;
-    tesseract-data-eng) echo tesseract-ocr-eng ;;
-    tldr) echo tealdeer ;;
-    woff2-font-awesome) echo fonts-font-awesome ;;
-    yaru-icon-theme) echo yaru-theme-icon ;;
-    zbar) echo zbar-tools ;;
-    *) echo "$1" ;;
-  esac
+root = Path(sys.argv[1])
+monitors = root / 'hypr/monitors.lua'
+if monitors.is_file():
+    text = monitors.read_text()
+    monitors.write_text(text.replace('local omarchy_gdk_scale = 2',
+                                     'local omarchy_gdk_scale = 1'))
+
+bindings = root / 'hypr/bindings.lua'
+if bindings.is_file():
+    text = bindings.read_text()
+    marker = '-- Open Dolphin instead of the default Nautilus file manager.'
+    if marker not in text:
+        text += ('\n' + marker + '\n'
+                 'hl.unbind("SUPER + SHIFT + F")\n'
+                 'o.bind("SUPER + SHIFT + F", "File manager", { launch = "dolphin" })\n')
+        bindings.write_text(text)
+
+kitty = root / 'kitty/kitty.conf'
+if kitty.is_file():
+    text = kitty.read_text()
+    if 'map shift+enter send_text all' not in text:
+        text += ('\n# Let terminal apps distinguish Shift+Enter from Enter.\n'
+                 'map shift+enter send_text all \\e[13;2u\n'
+                 'map alt+shift+enter send_text all \\e[13;4u\n')
+        kitty.write_text(text)
+PY
 }
+apply_debian_user_preferences "$HOME/.config"
+mkdir -p "$HOME/.config/omarchy/themes" "$HOME/.config/omarchy/themed"
+[[ -e $HOME/.config/omarchy/themes/neural-acid ]] || \
+  cp -a "$THEME_ASSETS" "$HOME/.config/omarchy/themes/neural-acid"
+[[ -e $HOME/.config/omarchy/themed/foot.ini.tpl ]] || \
+  cp -a "$ASSETS_DIR/foot.ini.tpl" "$HOME/.config/omarchy/themed/foot.ini.tpl"
 
-mode=${1:-}
-[[ $mode == -Q* ]] || { echo "pacman is unavailable on Debian; use apt or omarchy-pkg-add." >&2; exit 2; }
-query_info=0
-query_quiet=0
-args=()
-mode_flags=${mode#-Q}
-[[ $mode_flags == *i* ]] && query_info=1
-[[ $mode_flags == *q* ]] && query_quiet=1
-shift
-while (($#)); do
-  case "$1" in
-    -i|-Qi) query_info=1 ;;
-    -q|-Qq) query_quiet=1 ;;
-    -Q*)
-      mode_flags=${1#-Q}
-      [[ $mode_flags == *i* ]] && query_info=1
-      [[ $mode_flags == *q* ]] && query_quiet=1
-      ;;
-    --) ;;
-    -*) ;;
-    *) args+=("$(debian_name "$1")") ;;
-  esac
-  shift
-done
-
-if (( query_info )); then
-  packages=("${args[@]}")
-  if ((${#packages[@]} == 0)); then
-    mapfile -t packages < <(dpkg-query -W -f='${binary:Package}\n' 2>/dev/null)
-  fi
-  for package in "${packages[@]}"; do
-    dpkg-query -W -f='Name : ${binary:Package}\nProvides : ${Provides}\n\n' "$package" 2>/dev/null || true
-  done
-elif ((${#args[@]})); then
-  for package in "${args[@]}"; do
-    if dpkg-query -W -f='${binary:Package}\n' "$package" 2>/dev/null; then
-      (( query_quiet )) || dpkg-query -W -f='${binary:Package} ${Version}\n' "$package"
-    else
-      exit 1
-    fi
-  done
-else
-  if (( query_quiet )); then
-    dpkg-query -W -f='${binary:Package}\n'
-  else
-    dpkg-query -W -f='${binary:Package} ${Version}\n'
-  fi
-fi
-PACMAN
-chmod 755 "$OMARCHY_DIR/bin/pacman"
+install -m 0755 "$SCRIPT_ROOT/adapters/pacman" "$OMARCHY_DIR/bin/pacman"
 
 cat >"$OMARCHY_DIR/bin/omarchy-pkg-add" <<'PKGADD'
 #!/usr/bin/env bash
@@ -407,7 +455,7 @@ debian_name() {
     bluez-utils) echo bluez ;;
     libreoffice-fresh) echo libreoffice ;;
     docker) echo docker.io ;;
-    docker-compose) echo docker-compose-v2 ;;
+    docker-compose) echo docker-compose ;;
     fd) echo fd-find ;;
     fcitx5-gtk) echo fcitx5-frontend-gtk3 ;;
     fcitx5-qt) echo fcitx5-frontend-qt5 ;;
@@ -457,7 +505,7 @@ debian_name() {
     bluez-utils) echo bluez ;;
     libreoffice-fresh) echo libreoffice ;;
     docker) echo docker.io ;;
-    docker-compose) echo docker-compose-v2 ;;
+    docker-compose) echo docker-compose ;;
     fd) echo fd-find ;;
     fcitx5-gtk) echo fcitx5-frontend-gtk3 ;;
     fcitx5-qt) echo fcitx5-frontend-qt5 ;;
@@ -606,7 +654,7 @@ done
   cp -a "$OMARCHY_PATH/icon.txt" "$HOME/.config/omarchy/branding/about.txt"
 command -v xdg-user-dirs-update >/dev/null && xdg-user-dirs-update || true
 if [[ ! -s $HOME/.local/state/omarchy/current/theme.name ]]; then
-  OMARCHY_THEME_HEADLESS=1 omarchy-theme-set "Tokyo Night"
+  OMARCHY_THEME_HEADLESS=1 omarchy-theme-set "Neural Acid"
 fi
 omarchy-theme-set-pi --activate >/dev/null 2>&1 || true
 
@@ -720,7 +768,9 @@ say "Installing Omarchy's Nerd Font used by its terminal and shell UI"
 install_nerd_font || warn "Could not install the pinned JetBrainsMono Nerd Font; icons may use fallback glyphs."
 
 install_localsend() {
-  local archive="$CACHE_DIR/sources/localsend-1.18.2-$(dpkg --print-architecture).deb"
+  local archive architecture
+  architecture=$(dpkg --print-architecture) || return 1
+  archive="$CACHE_DIR/sources/localsend-1.18.2-$architecture.deb"
   local url checksum
   if dpkg-query -W -f='${Status}' localsend 2>/dev/null | grep -q 'install ok installed'; then return 0; fi
   case $(dpkg --print-architecture) in
@@ -1115,7 +1165,9 @@ BUILD_RS
     fi
     if ! command -v wails >/dev/null 2>&1; then
       GOTOOLCHAIN=auto go install github.com/wailsapp/wails/v2/cmd/wails@v2.10.2 || return 1
-      export PATH="$(go env GOPATH)/bin:$PATH"
+      local go_path
+      go_path=$(go env GOPATH) || return 1
+      export PATH="$go_path/bin:$PATH"
     fi
     (cd "$1" && GOTOOLCHAIN=auto make build)
     install -m 755 "$1/build/bin/aether" "$HOME/.local/bin/aether"
@@ -1261,7 +1313,7 @@ EOF_MARKER
     /usr/lib/systemd/system-sleep/unmount-fuse
 
   sudo install -d -m 0755 /usr/share/sddm/themes/omarchy
-  sudo cp -an "$OMARCHY_DIR/default/sddm/omarchy/." /usr/share/sddm/themes/omarchy/
+  sudo cp -a "$OMARCHY_DIR/default/sddm/omarchy/." /usr/share/sddm/themes/omarchy/
   sudo find /usr/share/sddm/themes/omarchy -type d -exec chmod 0755 {} +
   sudo find /usr/share/sddm/themes/omarchy -type f -exec chmod 0644 {} +
   sudo chown -R root:root /usr/share/sddm/themes/omarchy
@@ -1284,9 +1336,13 @@ EOF_MARKER
   # overwrite any files an administrator has already placed in /etc/skel.
   staging="$CACHE_DIR/skel-config"
   rm -rf "$staging"
-  mkdir -p "$staging"
-  cp -a "$OMARCHY_DIR/config/." "$staging/"
-  rm -f "$staging/autostart/limine-snapper-notify.desktop"
+  mkdir -p "$staging/.config"
+  cp -a "$OMARCHY_DIR/config/." "$staging/.config/"
+  apply_debian_user_preferences "$staging/.config"
+  mkdir -p "$staging/.config/omarchy/themes" "$staging/.config/omarchy/themed"
+  cp -a "$THEME_ASSETS" "$staging/.config/omarchy/themes/neural-acid"
+  cp -a "$ASSETS_DIR/foot.ini.tpl" "$staging/.config/omarchy/themed/foot.ini.tpl"
+  rm -f "$staging/.config/autostart/limine-snapper-notify.desktop"
   install -Dm0644 "$OMARCHY_DIR/default/hypr/toggles/flags.lua" \
     "$staging/.local/state/omarchy/toggles/hypr/flags.lua"
   install -Dm0644 "$OMARCHY_DIR/default/nautilus-python/extensions/localsend.py" \
@@ -1297,6 +1353,7 @@ EOF_MARKER
   install -Dm0644 "$OMARCHY_DIR/icon.txt" "$staging/.config/omarchy/branding/about.txt"
   printf '# Generated by Omarchy on Debian\ninclude "/usr/share/omarchy/default/xcompose"\n' >"$staging/.XCompose"
   if [[ -d $HOME/.config/nvim ]]; then cp -a "$HOME/.config/nvim" "$staging/.config/nvim"; fi
+  install_kde_application_menu "$staging/.config"
   sudo install -d -m 0755 /etc/skel/.config
   sudo install -d -m 0755 /etc/skel/.local
   sudo cp -Rn "$staging/." /etc/skel/
@@ -1309,17 +1366,12 @@ PROFILE
 
   if sudo test -d /etc/sddm.conf.d; then
     if ! sudo test -e /etc/sddm.conf.d/90-omarchy-debian.conf || \
-      sudo grep -q '^# Managed by install-omarchy-debian.sh$' /etc/sddm.conf.d/90-omarchy-debian.conf; then
+      sudo grep -qE '^# (Managed by install-omarchy-debian.sh|Omarchy appearance with SDDM)' \
+        /etc/sddm.conf.d/90-omarchy-debian.conf; then
       sudo tee /etc/sddm.conf.d/90-omarchy-debian.conf >/dev/null <<'SDDM'
-# Managed by install-omarchy-debian.sh
+# Omarchy appearance with SDDM's existing display server.
 [Theme]
 Current=omarchy
-
-[General]
-DisplayServer=wayland
-
-[Wayland]
-CompositorCommand=start-hyprland -- --config /usr/share/sddm/hyprland.lua
 SDDM
     else
       warn "Preserving existing /etc/sddm.conf.d/90-omarchy-debian.conf"
@@ -1348,20 +1400,32 @@ OMARCHY_PATH=/usr/share/omarchy \
   OMARCHY_THEME_HEADLESS=1 omarchy-provision-first-run || \
   warn "Omarchy first-user setup did not finish; run omarchy-provision-first-run after logging in."
 
+# The Debian first-run adapter skips upstream's omarchy-provision-user, which
+# normally links the bundled skills into each agent's discovery directory.
+say "Installing Debian-adapted Omarchy agent skills"
+python3 "$SKILLS_INSTALLER"
+
 if command -v update-desktop-database >/dev/null 2>&1; then
   update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1 || true
 fi
 if command -v fc-cache >/dev/null 2>&1; then fc-cache -f "$HOME/.local/share/fonts" >/dev/null 2>&1 || true; fi
 
+say "Configuring KDE application discovery for Dolphin and other KDE apps"
+install_kde_application_menu "${XDG_CONFIG_HOME:-$HOME/.config}"
+if command -v kbuildsycoca6 >/dev/null 2>&1; then
+  QT_QPA_PLATFORM=offscreen kbuildsycoca6 --noincremental || \
+    warn "Could not rebuild KDE's application index; run kbuildsycoca6 --noincremental after logging in."
+fi
+
 say "Omarchy on Debian is installed"
 cat <<EOF
-Log out, select “Omarchy on Debian” from the login-session menu, then log in.
+Log out, select "Omarchy on Debian" from the login-session menu, then log in.
 
 Upstream user configuration: $HOME/.config
 Omarchy source and themes:   $OMARCHY_DIR
 Build log:                   $SOURCE_BUILD_LOG
 Package report:              $PACKAGE_REPORT
 
-Package updates use Debian: run “omarchy update” or “sudo apt full-upgrade”.
+After bridge activation, "omarchy update" updates Debian and the Arch app box.
 This installer leaves the machine running; reboot when convenient.
 EOF

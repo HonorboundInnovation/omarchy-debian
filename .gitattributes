@@ -1,0 +1,3 @@
+# Preserve exact captured/default content, including upstream whitespace.
+customizations/** -whitespace
+*.patch -whitespace

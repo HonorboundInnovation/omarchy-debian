@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy update restart'; exit 0; fi
+(( $# == 0 )) || { echo 'Usage: omarchy update restart' >&2; exit 2; }
+
+reboot_reason=''
+if [[ -e /run/reboot-required || -e /var/run/reboot-required ]]; then
+  reboot_reason='Debian reports that a reboot is required.'
+else
+  newest_kernel=$(find /boot -maxdepth 1 -type f -name 'vmlinuz-*' -printf '%f\n' 2>/dev/null |
+    sed 's/^vmlinuz-//' | sort -V | tail -1)
+  if [[ -n $newest_kernel && $newest_kernel != "$(uname -r)" ]]; then
+    reboot_reason="A newer kernel ($newest_kernel) is installed."
+  fi
+fi
+
+if [[ -n $reboot_reason ]]; then
+  echo "$reboot_reason"
+  if [[ -t 0 && -t 1 ]] && command -v gum >/dev/null && gum confirm 'Reboot now?'; then
+    exec omarchy-system-reboot
+  fi
+fi
+
+if command -v omarchy-restart-shell >/dev/null; then
+  omarchy-restart-shell || true
+fi

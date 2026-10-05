@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then echo 'Usage: omarchy update orphan pkgs'; exit 0; fi
+(( $# == 0 )) || { echo 'Usage: omarchy update orphan pkgs' >&2; exit 2; }
+
+orphans=$(apt-get -s autoremove 2>/dev/null | awk '$1 == "Remv" { print $2 }')
+[[ -n $orphans ]] || exit 0
+echo 'APT packages eligible for automatic removal:'
+printf '%s\n' "$orphans"
+if [[ -t 0 && -t 1 ]] && command -v gum >/dev/null && gum confirm --default=false 'Remove these packages?'; then
+  exec sudo apt-get autoremove
+fi

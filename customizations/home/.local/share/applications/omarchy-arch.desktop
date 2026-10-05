@@ -1,0 +1,17 @@
+[Desktop Entry]
+Name=Omarchy-arch
+GenericName=Terminal entering Omarchy-arch
+Comment=Terminal entering Omarchy-arch
+Categories=Distrobox;System;Utility
+Exec=/usr/bin/distrobox enter  omarchy-arch
+Icon=@HOME@/.local/share/icons/distrobox/arch.png
+Keywords=distrobox;
+NoDisplay=false
+Terminal=true
+TryExec=/usr/bin/distrobox
+Type=Application
+Actions=Remove;
+
+[Desktop Action Remove]
+Name=Remove Omarchy-arch from system
+Exec=/usr/bin/distrobox rm  omarchy-arch

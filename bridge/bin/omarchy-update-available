@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+pending=$(apt list --upgradable 2>/dev/null | sed '1d' || true)
+if command -v podman >/dev/null && podman container exists "${OMARCHY_ARCH_BOX:-omarchy-arch}"; then
+  arch_pending=$(omarchy-arch updates 2>/dev/null || true)
+  if [[ -n $arch_pending ]]; then
+    pending+="${pending:+$'\n'}$arch_pending"
+  fi
+fi
+[[ -n $pending ]] || exit 1
+printf '%s\n' "$pending"

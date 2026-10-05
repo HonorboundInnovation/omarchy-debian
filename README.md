@@ -1,51 +1,113 @@
-# Omarchy on Debian 13
+# Omarchy on Debian
 
-This installer turns a fresh Debian 13 (Trixie) system into an Omarchy-style Hyprland desktop. It installs Omarchy Quattro's released shell, themes, Quickshell UI, Hyprland configuration, keybindings, login theme, user services, and application defaults, then adapts package and system operations to Debian.
+Private source repository for this machine's Debian 13 Omarchy installer,
+APT/Arch bridge, Neural Acid theme, custom menu, and desktop configuration.
+Omarchy is pinned to v4.0.4, commit
+`c668141e9c42b13c80c9ca4ea108e11708c5e8a5`. This is an independent Debian port.
 
-The Omarchy files are pinned to [v4.0.4](https://github.com/omacom/omarchy/tree/v4.0.4) at commit `c668141e9c42b13c80c9ca4ea108e11708c5e8a5`. This is an independent Debian installer, not an official Omarchy release.
+## Installation
 
-## Install
+Keep the checkout in a permanent location: bridge activation links commands
+from `~/.local/bin` back into this repository. Run as your desktop user:
 
-Run the script as your regular desktop user. It uses `sudo` for system changes and requires an internet connection.
-
-```bash
-chmod +x install-omarchy-debian.sh
-./install-omarchy-debian.sh
+```sh
+./install.sh
+# Optional: snapshots on an existing separate mounted filesystem
+./install.sh --snapshot-mount /mnt/storage
+# Optional: skip companion-app compilations
+./install.sh --skip-source-builds
 ```
 
-Source builds for companion projects run by default. To skip those optional compilations:
+Installation changes Debian packages, system defaults, and the login session.
+Replaced user configurations are backed up. Log out, select **Omarchy on Debian**,
+and log back in. Downloads need internet access; this is not an offline mirror.
+APT owns the host OS, drivers, PAM, shared libraries, and services. Arch/AUR apps
+run in a rootless Podman Distrobox. `omarchy update` updates both. Source channels
+stage releases for review; new releases still need Debian port/migration work.
+Factory reset remains disabled.
 
-```bash
-./install-omarchy-debian.sh --skip-source-builds
+## Restore this desktop's customizations
+
+Preview the profile, then explicitly apply it:
+
+```sh
+python3 scripts/customizations.py restore
+python3 scripts/customizations.py restore --apply
 ```
 
-That option skips compilation only. The script still installs pinned release assets such as the Nerd Font, LocalSend, Mise when Debian does not provide it, `ufw-docker`, and the Omarchy Neovim configuration.
+This restores Hyprland settings, the custom `malice.menu` plugin, Neural Acid and
+its generated theme state, terminal and Neovim settings, GTK/KDE preferences,
+file associations, UWSM/Fcitx, Bluetooth configuration, and selected launchers.
+Existing files are backed up under
+`~/.local/state/omarchy-debian/restore-backups/`. Home-directory references are
+rewritten for the restoring user. Log out and back in to load restored settings.
 
-When it finishes, log out, choose **Omarchy on Debian** in the session menu, and log back in. It runs Omarchy's first-user setup before exiting. It does not partition disks, change the bootloader, enable automatic login, or reboot. Existing user configs that it replaces are moved into `~/.config/omarchy-debian-backup-*`.
+The HDMI override, Evo bindings, Codex path, Chrome accessibility wrapper, and
+SCU integration reflect this machine. Read [profile notes](docs/CUSTOMIZATIONS.md)
+before restoring on another machine. User audio/power scripts and units are
+included through an additional switch:
 
-The installer enables Debian's official `contrib` and `non-free` components for Trixie, updates, security, and backports, and adds the `trixie-backports` source when it is not already enabled. Debian 13's standard installer source includes `non-free-firmware`; the installer leaves that existing setting intact. It installs Debian-maintained backports for [Hyprland](https://packages.debian.org/trixie-backports/hyprland), [Quickshell](https://packages.debian.org/trixie-backports/x11/quickshell), [UWSM](https://packages.debian.org/stable-backports/uwsm), and the [Hyprland portal](https://packages.debian.org/trixie-backports/xdg-desktop-portal-hyprland).
+```sh
+python3 scripts/customizations.py restore --hardware
+python3 scripts/customizations.py restore --hardware --apply
+```
 
-## Included
+Units are copied but not enabled or started automatically. Root-owned files in
+`customizations/system/` are reference material and are never installed by
+restore. Resume, NVIDIA, global audio, and SDDM settings must match the hardware.
 
-- Omarchy's Quickshell UI, themes, wallpapers, Hyprland Lua configuration, shell commands, and default keybindings from the pinned release.
-- Debian session startup through UWSM, the Omarchy SDDM theme and PAM service, fontconfig and Fcitx environment settings, the terminal registration, and Omarchy's user/system service units.
-- Debian equivalents for the upstream base package manifest: desktop, audio, fonts, development, media, printing, networking, file-manager, storage, and container tools. Package aliases adapt common Arch names such as `networkmanager`, `nvim`, `fd`, `docker-compose`, `tesseract`, and `qemu-user-static-binfmt` to Debian package names.
-- Debian adapters for Omarchy package install, remove, update, version, and presence commands. `omarchy pkg install` searches Debian's package list; updates use APT. Pacman compatibility is read-only and handles common installed-package queries. AUR installation is unavailable on Debian.
-- The pinned Omarchy Neovim/LazyVim configuration. Existing Neovim config is backed up; LazyVim plugin downloads happen on the first Neovim launch.
-- Omarchy's JetBrainsMono Nerd Font and its own font assets. LocalSend uses its upstream Debian package when Trixie has no package. Mise and the UFW/Docker helper are installed from pinned upstream releases if needed.
-- System defaults for `systemd-oomd`, nofile limits, and zram generation. The installer enables NetworkManager, Bluetooth, power profiles, printing, mDNS, Docker's socket, and systemd-oomd when those units are present.
+Refresh the export after editing your live desktop, then review the diff:
 
-The script compiles portable Omarchy companion projects when their Debian build dependencies are available: Aether (only when Go and Node meet upstream minimum versions), asdcontrol, cliamp, Herdr, OmaCalc, OmaCut, OmaWrite, OmaSnap, OWE and its Quickshell lock-feed plugin, ttfx, Tensaku, tzupdate, the Elsewhen Quickshell plugin, and the Hyprland preview share picker. It also has pinned upstream source fallbacks for `dua-cli`, GPU Screen Recorder, lazydocker, Moonlight Qt, `usage`, and `tobi-try` when their Debian package did not leave the corresponding command installed. `dua-cli` and `usage` build from their GitHub source checkouts; the other builders use pinned GitHub revisions, upstream versioned Go sources, or a checksum-verified source archive. Failed optional builds are logged and do not stop the desktop setup.
+```sh
+python3 scripts/customizations.py capture
+python3 scripts/customizations.py check
+```
 
-The source build log is `~/.cache/omarchy-debian/source-builds.log`. Package candidates that are missing or fail installation, along with source-fallback outcomes, are recorded in `~/.cache/omarchy-debian/package-install-report.log`; failed package groups are retried one package at a time. The required Hyprland, Quickshell, UWSM, and portal packages stop installation with a specific error if Debian cannot provide them. GPU Screen Recorder is built without installing privileged capture capabilities or changing NVIDIA/kernel settings; Wayland capture therefore depends on portal and hardware support. Moonlight follows the upstream Linux build steps and Debian dependency list ([upstream build notes](https://github.com/moonlight-stream/moonlight-qt#building)).
+Capture uses an explicit desktop allowlist. Credentials, browser profiles,
+agent account settings, unrelated app services, logs, caches, backups, bookmarks,
+and Dolphin directory history are excluded. `manifest.json` records origins,
+modes, symlinks, checksums, and the upstream source revision.
 
-## Debian-specific limits
+## Files
 
-- This configures Debian in place; it does not make a bootable Omarchy-like ISO. Debian's kernel, firmware, package sources, init system, and bootloader remain in control. There is no Omarchy custom kernel, Limine setup, Snapper snapshot integration, disk encryption/partitioning flow, or Arch hardware-detection installer.
-- The Omarchy Plymouth theme files are installed, but the active boot splash is not changed. Existing display-manager configuration is preserved when it is not managed by this installer.
-- `yay`, the AUR, `pacman-contrib`/`expac` metadata behavior, and `kernel-modules-hook` are Arch-specific. The package menu and update adapters use APT equivalents where possible; Debian handles kernel module rebuilds through its own mechanisms.
-- Omarchy lists a .NET runtime package, but Debian's standard Trixie repositories do not provide that Arch package. The script does not add Microsoft's repository. Obsidian and other proprietary applications are installed only if they already exist in the enabled Debian sources.
-- GPU drivers and firmware availability depend on hardware and Debian's `non-free-firmware` component. The installer adds `contrib` and `non-free` from Debian's official archive; it does not add third-party repositories or install proprietary GPU drivers. The UFW/Docker helper is installed without enabling UFW or changing firewall rules.
-- Debian's Hyprland and Quickshell versions can differ from Omarchy's. Some optional packages may not exist for the machine's architecture or currently enabled repositories; those are reported and skipped.
+| Path | Purpose |
+| --- | --- |
+| `install.sh` | Base installation and bridge activation |
+| `install-omarchy-debian.sh` | Comprehensive pinned Debian installer and runtime fixes |
+| `install-omarchy-debian-missing.sh` | Optional supplemental components; use `--list` or `--only NAME` |
+| `omarchy-debian-runtime.patch` | mawk, notification QML, and SDDM session fixes |
+| `omarchy-debian-assets/` | Neural Acid source assets and Foot template |
+| `bridge/` | Package, update, snapshot, boot, and channel adapters with tests |
+| `adapters/pacman` | Installed Debian-only package query, filtering actual installed packages |
+| `skills/` | Maintained Debian Omarchy and crash-diagnosis skills |
+| `customizations/home/` | Desktop profile, relative to the user's home |
+| `customizations/hardware/` | User audio/power files, relative to home |
+| `customizations/system/` | System reference configuration |
+| `customizations/upstream/` | Installed tracked overlay and Debian-only additions |
+| `scripts/` | Capture, restore, and validation tools |
 
-For reference, the upstream [Omarchy base package manifest](https://github.com/omacom/omarchy/blob/v4.0.4/install/omarchy-base.packages) defines the core package set that this script adapts.
+The supplemental installer can add Microsoft's .NET feed and optional
+Flatpak/upstream apps; the default installer does not run it. The installed
+upstream overlay is an exact reference/recovery export; the base installer is
+the maintained deployment path. Do not apply both overlays to the same tree.
+
+The base installer installs maintained Debian skills and links missing agent
+discovery entries, preserving existing independent skills.
+`./install-codex-skills.sh` supports installing just the Codex skills.
+
+## Validation
+
+```sh
+./scripts/check.sh
+# Optional lint when ShellCheck is available
+SHELLCHECK=/path/to/shellcheck ./scripts/check.sh
+```
+
+Checks cover shell/Python/Lua syntax, capture checksums, bridge command routing,
+snapshot guards, restore backups/relocation, and runtime patch application when
+the pinned upstream checkout is present. A complete clean-machine installation
+and Timeshift restore are not yet tested.
+
+See [source reconciliation](docs/PROVENANCE.md), [profile notes](docs/CUSTOMIZATIONS.md),
+and [attribution](docs/THIRD_PARTY.md). The package gap report describes the
+original September 22 installation, not current package availability.

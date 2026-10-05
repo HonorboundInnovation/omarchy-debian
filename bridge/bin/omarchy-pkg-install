@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+  echo 'Usage: omarchy pkg install [--debian|--arch|--aur PACKAGE...]'
+}
+
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then usage; exit 0; fi
+
+if (( $# == 0 )); then
+  command -v fzf >/dev/null || { echo 'fzf is required for interactive installation.' >&2; exit 2; }
+  source=$(printf 'Debian (APT)\nArch (pacman)\nAUR (yay)\n' | fzf --prompt='Package source > ') || exit 0
+  case "$source" in
+    'Debian (APT)')
+      package=$(apt-cache pkgnames | sort -u | fzf --prompt='Debian package > ' --preview='apt-cache show {} 2>/dev/null | sed -n "1,18p"') || exit 0
+      [[ -n $package ]] && exec sudo apt-get install -- "$package"
+      ;;
+    'Arch (pacman)')
+      package=$(omarchy-arch run pacman -Slq | sort -u | fzf --prompt='Arch package > ') || exit 0
+      [[ -n $package ]] && exec omarchy-arch pacman "$package"
+      ;;
+    'AUR (yay)')
+      read -r -p 'AUR package name: ' package
+      [[ -n $package ]] && exec omarchy-arch aur "$package"
+      ;;
+  esac
+  exit 0
+fi
+
+source=$1
+shift
+(( $# )) || { usage; exit 2; }
+case "$source" in
+  --debian) exec sudo apt-get install -- "$@" ;;
+  --arch) exec omarchy-arch pacman "$@" ;;
+  --aur) exec omarchy-arch aur "$@" ;;
+  *) usage; exit 2 ;;
+esac

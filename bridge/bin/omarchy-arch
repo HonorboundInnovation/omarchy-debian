@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+box=${OMARCHY_ARCH_BOX:-omarchy-arch}
+image=${OMARCHY_ARCH_IMAGE:-docker.io/library/archlinux:latest}
+arch_home=${OMARCHY_ARCH_HOME:-$HOME/.local/share/omarchy-debian/arch-home}
+cache_dir=${OMARCHY_ARCH_CACHE:-$HOME/.cache/omarchy-debian-bridge}
+export DBX_CONTAINER_MANAGER=podman
+
+usage() {
+  cat <<'EOF'
+Usage: omarchy-arch <setup|run|pacman|aur|remove|update|updates|export> [arguments]
+
+Arch packages stay in an Arch Distrobox. Debian's APT owns the host system.
+  setup                 Create the box and install pacman build tools and yay
+  run COMMAND...        Run a command in the box
+  pacman PACKAGE...     Install Arch repository packages
+  aur PACKAGE...        Install AUR packages using yay
+  remove PACKAGE...     Remove an Arch or AUR package
+  update                Update Arch repository and AUR packages
+  aur-update            Update AUR packages only
+  updates               List pending Arch and AUR updates
+  refresh-cache         Refresh host package-presence data for Omarchy menus
+  export PACKAGE...     Export installed desktop apps to the host launcher
+EOF
+}
+
+need_tools() {
+  command -v distrobox >/dev/null || { echo 'distrobox is required (sudo apt install distrobox podman).' >&2; exit 2; }
+  command -v podman >/dev/null || { echo 'podman is required (sudo apt install distrobox podman).' >&2; exit 2; }
+}
+
+need_box() {
+  need_tools
+  local error
+  if ! error=$(podman container exists "$box" 2>&1); then
+    if [[ -n $error ]]; then
+      echo "Cannot inspect Arch box '$box': $error" >&2
+    else
+      echo "Arch box '$box' is missing; run omarchy-arch setup." >&2
+    fi
+    exit 2
+  fi
+}
+
+enter() {
+  distrobox enter --name "$box" -- "$@"
+}
+
+export_package() {
+  local pkg=$1 desktop exported=0
+  while IFS= read -r desktop; do
+    case "$desktop" in
+      /usr/share/applications/*.desktop|/usr/local/share/applications/*.desktop)
+        enter distrobox-export --app "$desktop"
+        exported=1
+        ;;
+    esac
+  done < <(enter /usr/bin/pacman -Qlq -- "$pkg" 2>/dev/null)
+  if (( ! exported )); then
+    echo "No desktop entry to export for $pkg; CLI programs remain available through 'omarchy-arch run'." >&2
+  else
+    mkdir -p "$cache_dir"
+    printf '%s\n' "$pkg" >>"$cache_dir/arch-exported"
+    sort -u "$cache_dir/arch-exported" -o "$cache_dir/arch-exported"
+  fi
+}
+
+refresh_cache() {
+  local temp
+  mkdir -p "$cache_dir"
+  temp=$(mktemp -d "$cache_dir/.refresh.XXXXXXXX")
+  if enter /usr/bin/pacman -Qq >"$temp/names" &&
+     enter env LC_ALL=C /usr/bin/pacman -Qi >"$temp/info" &&
+     enter /usr/bin/pacman -Q >"$temp/versions"; then
+    mv -- "$temp/names" "$cache_dir/arch-names"
+    mv -- "$temp/info" "$cache_dir/arch-info"
+    mv -- "$temp/versions" "$cache_dir/arch-versions"
+    rmdir -- "$temp"
+    if [[ -f $cache_dir/arch-exported ]]; then
+      grep -Fxf "$cache_dir/arch-names" "$cache_dir/arch-exported" | sort -u >"$cache_dir/arch-exported.new" || true
+      mv -- "$cache_dir/arch-exported.new" "$cache_dir/arch-exported"
+    fi
+  else
+    rm -rf -- "$temp"
+    echo 'Could not refresh Omarchy Arch package cache.' >&2
+    return 1
+  fi
+}
+
+(( $# )) || { usage; exit 2; }
+action=$1
+shift
+case "$action" in
+  setup)
+    need_tools
+    if ! podman container exists "$box"; then
+      mkdir -p "$arch_home"
+      distrobox create --yes --name "$box" --image "$image" --home "$arch_home"
+    fi
+    enter sudo pacman -Syu --noconfirm --needed base-devel git pacman-contrib
+    if ! enter bash -lc 'command -v yay >/dev/null'; then
+      enter bash -lc 'set -Eeuo pipefail; dir=$(mktemp -d); trap '\''rm -rf "$dir"'\'' EXIT; git clone https://aur.archlinux.org/yay.git "$dir/yay"; cd "$dir/yay"; makepkg -si --noconfirm'
+    fi
+    refresh_cache
+    echo "Arch box '$box' is ready."
+    ;;
+  run)
+    need_box
+    (( $# )) || { usage; exit 2; }
+    enter "$@"
+    ;;
+  pacman|aur)
+    need_box
+    if [[ ${1:-} == -h || ${1:-} == --help ]]; then usage; exit 0; fi
+    (( $# )) || { usage; exit 2; }
+    if [[ $action == pacman ]]; then
+      enter sudo /usr/bin/pacman -S --needed -- "$@"
+    else
+      enter /usr/bin/yay -S --needed -- "$@"
+    fi
+    refresh_cache
+    for pkg in "$@"; do export_package "$pkg"; done
+    ;;
+  remove)
+    need_box
+    (( $# )) || { usage; exit 2; }
+    enter sudo /usr/bin/pacman -Rns -- "$@"
+    refresh_cache
+    ;;
+  update)
+    need_box
+    if [[ ${1:-} == -y || ${1:-} == --yes ]]; then
+      (( $# == 1 )) || { usage; exit 2; }
+      enter sudo /usr/bin/pacman -Syu --noconfirm
+      enter /usr/bin/yay -Sua --noconfirm
+    else
+      (( $# == 0 )) || { usage; exit 2; }
+      enter sudo /usr/bin/pacman -Syu
+      enter /usr/bin/yay -Sua
+    fi
+    refresh_cache
+    ;;
+  aur-update)
+    need_box
+    enter /usr/bin/yay -Sua
+    refresh_cache
+    ;;
+  updates)
+    need_box
+    enter /usr/bin/pacman -Qu
+    enter /usr/bin/yay -Qua
+    ;;
+  refresh-cache)
+    need_box
+    refresh_cache
+    ;;
+  export)
+    need_box
+    (( $# )) || { usage; exit 2; }
+    refresh_cache
+    for pkg in "$@"; do export_package "$pkg"; done
+    ;;
+  -h|--help|help) usage ;;
+  *) usage >&2; exit 2 ;;
+esac

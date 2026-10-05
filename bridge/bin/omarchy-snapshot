@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() { echo 'Usage: omarchy snapshot <create|list|restore|configured>'; }
+if [[ ${1:-} == -h || ${1:-} == --help || ${1:-} == help ]]; then usage; exit 0; fi
+
+(( $# == 1 )) || { usage >&2; exit 2; }
+case $1 in create|list|restore|configured) ;; *) usage >&2; exit 2 ;; esac
+
+config=${XDG_CONFIG_HOME:-$HOME/.config}/omarchy-debian/snapshot-mount
+target=${OMARCHY_SNAPSHOT_MOUNT:-}
+if [[ -z $target && -r $config ]]; then read -r target < "$config"; fi
+[[ -n $target ]] || {
+  [[ ${1:-} == configured ]] && exit 1
+  echo 'No snapshot destination configured. Run bridge/activate-system.sh --snapshot-mount PATH on a separate mounted filesystem.' >&2
+  exit 2
+}
+[[ -d $target ]] || { echo "Snapshot destination $target is missing." >&2; exit 2; }
+root_source=$(findmnt -no SOURCE /)
+target_source=$(findmnt -M -no SOURCE "$target" 2>/dev/null || true)
+[[ -n $target_source && $target_source != "$root_source" ]] || {
+  echo "Snapshot destination $target must be a separate mounted filesystem." >&2
+  exit 2
+}
+target_uuid=$(findmnt -M -no UUID "$target")
+[[ -n $target_uuid ]] || { echo "Could not determine UUID for $target." >&2; exit 2; }
+[[ ${1:-} == configured ]] && exit 0
+command -v timeshift >/dev/null || {
+  echo 'Timeshift is missing; install it with sudo apt install timeshift.' >&2
+  exit 2
+}
+
+case "${1:-}" in
+  create)
+    (( $# == 1 )) || { usage >&2; exit 2; }
+    sudo timeshift --create --rsync --snapshot-device "$target_uuid" \
+      --comments "Omarchy Debian $(date +%F-%H%M)" --scripted
+    ;;
+  list)
+    (( $# == 1 )) || { usage >&2; exit 2; }
+    sudo timeshift --list --rsync --snapshot-device "$target_uuid"
+    ;;
+  restore)
+    (( $# == 1 )) || { usage >&2; exit 2; }
+    echo 'Timeshift will show its snapshot and restore choices before changing the system.'
+    exec sudo timeshift --restore --rsync --snapshot-device "$target_uuid"
+    ;;
+  -h|--help|help) usage ;;
+  *) usage >&2; exit 2 ;;
+esac

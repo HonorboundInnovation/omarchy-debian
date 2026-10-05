@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.log
+*.bak*
+.env
+.env.*
+backups/
+.cache/
+*.deb
+*.tar.gz
+.capture-*/
+.customizations-previous/

@@ -1,0 +1,11 @@
+[Unit]
+Description=Keep this desktop awake and available
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/systemd-inhibit --what=sleep:idle:handle-lid-switch:handle-suspend-key:handle-hibernate-key --who=stay-awake --why=Keep_this_computer_awake_and_usable --mode=block /usr/bin/sleep infinity
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

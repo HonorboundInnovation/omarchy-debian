@@ -1,0 +1,26 @@
+[DetailsMode]
+PreviewSize=16
+RightPadding=17
+
+[ExtractDialog]
+1536x864 screen: Height=540
+1536x864 screen: Width=1024
+1920x1080 screen: Height=540
+1920x1080 screen: Width=1256
+
+[General]
+Version=202
+ViewPropsTimestamp=2026,1,9,18,32,39.631
+
+[KFileDialog Settings]
+Places Icons Auto-resize=false
+Places Icons Static Size=22
+
+[MainWindow]
+MenuBar=Disabled
+
+[PreviewSettings]
+Plugins=ffmpegthumbs,ebookthumbnail,rawthumbnail,directorythumbnail,fontthumbnail,cursorthumbnail,blenderthumbnail,imagethumbnail,kraorathumbnail,windowsexethumbnail,webarchivethumbnail,svgthumbnail,audiothumbnail,opendocumentthumbnail,exrthumbnail,djvuthumbnail,jpegthumbnail,comicbookthumbnail,windowsimagethumbnail,mobithumbnail,appimagethumbnail,gsthumbnail,mltpreview,com,evince,ffmpegthumbnailer,gdk-pixbuf-thumbnailer
+
+[Search]
+What=Content

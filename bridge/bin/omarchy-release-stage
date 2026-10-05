@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() { echo 'Usage: omarchy release stage [--ref <git-ref>]'; }
+if [[ ${1:-} == -h || ${1:-} == --help ]]; then usage; exit 0; fi
+ref=''
+if [[ ${1:-} == --ref && $# == 2 ]]; then
+  ref=$2
+elif (( $# != 0 )); then
+  usage >&2; exit 2
+fi
+
+source_dir=${OMARCHY_DEBIAN_SOURCE:-$HOME/.local/share/omarchy-debian/upstream}
+[[ -d $source_dir/.git ]] || { echo "Missing Omarchy source checkout: $source_dir" >&2; exit 2; }
+channel=$(omarchy-channel-current)
+
+if [[ -z $ref ]]; then
+  if [[ $channel == edge ]]; then
+    ref=refs/heads/quattro
+  else
+    mapfile -t tags < <(git -C "$source_dir" ls-remote --refs --tags origin 'v[0-9]*' |
+      awk '{ sub("refs/tags/", "", $2); print $2 }' |
+      if [[ $channel == rc ]]; then grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-(rc|beta)[0-9.]*$';
+      else grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$'; fi |
+      sort -V)
+    ((${#tags[@]})) || { echo "No $channel source release found." >&2; exit 1; }
+    ref="refs/tags/${tags[-1]}"
+  fi
+fi
+
+case $ref in
+  HEAD|refs/tags/v*|refs/heads/quattro) ;;
+  *) echo "Unsupported source ref: $ref" >&2; exit 2 ;;
+esac
+
+if [[ $ref == HEAD ]]; then
+  candidate=$(git -C "$source_dir" rev-parse HEAD)
+else
+  git -C "$source_dir" fetch --depth=1 origin "$ref"
+  candidate=$(git -C "$source_dir" rev-parse FETCH_HEAD)
+fi
+installed=$(git -C "$source_dir" rev-parse HEAD)
+echo "Channel: $channel"
+echo "Installed source: $installed"
+echo "Candidate source: $candidate ($ref)"
+if [[ $candidate == "$installed" ]]; then
+  echo 'Installed source revision is current for this ref.'
+  exit 0
+fi
+
+stage_root=${XDG_CACHE_HOME:-$HOME/.cache}/omarchy-debian-bridge/release-stage
+stage="$stage_root/$candidate"
+mkdir -p -- "$stage_root"
+if [[ ! -d $stage ]]; then
+  temp=$(mktemp -d "$stage_root/.stage.XXXXXXXX")
+  trap 'rm -rf -- "$temp"' EXIT
+  git -C "$source_dir" archive "$candidate" | tar -x -C "$temp"
+  mv -- "$temp" "$stage"
+  trap - EXIT
+fi
+
+patch="$stage_root/debian-overlay.patch"
+git -C "$source_dir" diff --binary HEAD -- > "$patch"
+if git -C "$stage" apply --check "$patch"; then
+  echo "Tracked Debian changes apply cleanly to $stage"
+else
+  echo 'Debian changes conflict with this source. The release needs a manual Debian port.' >&2
+  exit 1
+fi
+while IFS= read -r -d '' relative; do
+  if [[ -e $stage/$relative ]]; then
+    echo "Debian-only file conflicts with new source: $relative" >&2
+    exit 1
+  fi
+done < <(git -C "$source_dir" ls-files --others --exclude-standard -z)
+echo 'Source staged only. System files, packages, and user config were not changed.'
+echo "Review upstream source in $stage and the Debian patch in $patch."
+echo 'Port Debian adaptations and migrations before deployment.'
