@@ -1,7 +1,8 @@
 # Captured desktop profile
 
-The manifest records exported files and their origins. Original `@HOME@`
-references are retained in the source export and rewritten during restore.
+The manifest records logical file origins without the capturing user's home
+path. Exported text uses `@HOME@`, expanded to the selected home during restore;
+home symlinks are relative. Exported files are templates for the restore tool.
 
 Included customizations:
 
@@ -12,8 +13,8 @@ Included customizations:
 - Terminal theme integration, Kitty Shift+Enter, Neovim, GTK/KDE preferences,
   Dolphin preferences, menus/associations, Fcitx, UWSM, and Bluetooth A2DP.
 - Chrome accessibility wrapper and selected launchers.
-- Audio initialization/recovery, PipeWire ordering, idle config, stay-awake unit.
-- Installed SDDM, resume, NVIDIA, font, PAM, systemd, and environment settings.
+- Audio initialization, PipeWire ordering, idle config, stay-awake unit.
+- Installed SDDM, NVIDIA, font, PAM, systemd, and environment settings.
 
 ## Dependencies and hardware
 
@@ -23,18 +24,19 @@ their separate projects. The default agent is `codex`. The custom menu remains
 an ordinary Omarchy menu without SCU; semantic control requires SCU separately.
 Chrome must be installed for its wrapper. The Arch launcher needs its Distrobox.
 
-Audio scripts target Intel SOF HDA at the local PCI address, ALSA card 1, and Speaker.
-The global recovery script can reset WirePlumber state and restart audio. They
-are stored for this hardware and are not executed by capture or restore.
-On this machine `sof-hda-alsa-init.service` and `stay-awake.service` were enabled;
-the user `fix-audio-output.service` was disabled and the global audio unit was
-enabled. Restore does not automatically enable units.
+Audio initialization targets Intel SOF HDA and ALSA card 1. Check these choices
+before restoring with `--hardware`. The user/global audio recovery helpers and
+their paired units are excluded because they contain a host-specific PCI
+address. Existing live helpers are unaffected. On this machine
+`sof-hda-alsa-init.service` and `stay-awake.service` were enabled. Restore does
+not automatically enable units.
 
 The export preserves actual idle settings: Hypridle has no timers; stay-awake
 inhibits idle/sleep; shell.json separately retains 150-second screensaver and
 300-second lock values. Decide desired behavior before enabling power units
-elsewhere. Resume contains the original swap UUID. NVIDIA settings and SDDM's
-KWin Wayland greeter are machine-specific. System exports are reference-only.
+elsewhere. Resume files are excluded because they contain filesystem UUIDs;
+configure hibernation for the destination machine separately. NVIDIA settings
+and SDDM's KWin Wayland greeter are machine-specific. System exports are reference-only.
 
 The portable snapshot bridge needs explicit configuration. If activating it on
 this machine, run `./bridge/activate-system.sh --snapshot-mount /mnt/storage`.
@@ -47,4 +49,7 @@ It excludes browser data, account credentials, OpenClaw/HBSE services, unrelated
 application projects, the Arch container home, installed binaries, and build
 caches. Omarchy upstream is fetched at its pinned revision; local changes are
 exported separately. Samples, backup files, bookmarks, cached input layouts,
-and Dolphin directory history are omitted.
+and Dolphin/KDE directory history are omitted. The complete staged export is
+scanned for recognizable credentials and private host identifiers before it
+replaces the previous capture. `check` and `restore` enforce the same scan;
+review diffs as well, since pattern detection is not exhaustive.

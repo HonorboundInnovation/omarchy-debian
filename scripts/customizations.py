@@ -6,10 +6,12 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
 from datetime import datetime, timezone
+from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE = ROOT / "customizations"
@@ -30,16 +32,12 @@ HOME_FILES = tuple(".config/" + name for name in CONFIGS) + (
     ".local/share/applications/Tailscale.desktop",
 )
 HARDWARE_FILES = (
-    ".local/bin/fix-audio-output",
-    ".config/systemd/user/fix-audio-output.service",
     ".config/systemd/user/sof-hda-alsa-init.service",
     ".config/systemd/user/stay-awake.service",
     ".config/systemd/user/pipewire.service.d/10-sof-hda-alsa-init.conf",
     ".config/systemd/user/pipewire-pulse.service.d/10-sof-hda-alsa-init.conf",
 )
 SYSTEM_FILES = (
-    "/usr/local/bin/fix-audio-output-global",
-    "/etc/systemd/user/fix-audio-output-global.service",
     "/etc/sddm.conf.d", "/etc/profile.d/omarchy-debian.sh",
     "/etc/pam.d/omarchy-lock-password", "/etc/fastfetch/config.jsonc",
     "/etc/systemd/oomd.conf.d/10-omarchy.conf",
@@ -47,7 +45,6 @@ SYSTEM_FILES = (
     "/etc/systemd/user.conf.d/20-omarchy-nofile.conf",
     "/etc/systemd/zram-generator.conf.d/90-omarchy.conf",
     "/etc/systemd/logind.conf.d", "/etc/systemd/sleep.conf.d",
-    "/etc/initramfs-tools/conf.d/resume", "/etc/initramfs-tools/conf.d/omarchy-resume",
     "/usr/lib/systemd/system-sleep/unmount-fuse",
     "/usr/share/uwsm/env.d/10-omarchy", "/usr/lib/environment.d/10-omarchy-fcitx.conf",
     "/usr/share/fontconfig/conf.avail/50-omarchy.conf", "/etc/fonts/conf.d/50-omarchy.conf",
@@ -58,6 +55,106 @@ SYSTEM_FILES = (
     "/etc/modprobe.d/nvidia.conf",
 )
 EXCLUDED = {".git", "__pycache__", "bookmarks", "btop.log", "cached_layouts"}
+HOME_PLACEHOLDER = "@HOME@"
+
+# These are detection rules, not a guarantee that arbitrary secrets can be found.
+# Match concrete values rather than words such as searchableToken or UUID=$uuid.
+SCAN_RULES = (
+    ("private key", re.compile(r"-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----")),
+    ("API/access key", re.compile(
+        r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|"
+        r"sk-(?:proj-|svcacct-|ant-)?[A-Za-z0-9_-]{20,}|"
+        r"(?:AKIA|ASIA)[A-Z0-9]{16}|xox[baprs]-[A-Za-z0-9-]{10,})\b")),
+    ("JWT", re.compile(r"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b")),
+    ("credential URL", re.compile(r"\b[a-z][a-z0-9+.-]*://[^\s/\"'<>:@]+:[^\s/\"'<>@]+@", re.I)),
+    ("authorization credential", re.compile(
+        r"\b(?:Bearer|Basic)\s+[A-Za-z0-9_+/=-]{8,}", re.I)),
+    ("authentication cookie", re.compile(
+        r"(?:\b(?:Set-Cookie|Cookie)[\"']?\s*[:=]\s*[\"']?[^\s\"']+=|"
+        r"\b(?:sessionid|session_id|auth_cookie|session_cookie)[\"']?\s*[:=]\s*[\"']?[A-Za-z0-9_-]{8,}|"
+        r"# Netscape HTTP Cookie File)", re.I)),
+    ("filesystem UUID", re.compile(
+        r"(?:\b(?:[a-z]+[_-])*(?:PART)?UUID[\"']?\s*[:=]\s*[\"']?|/dev/disk/by-(?:part)?uuid/|"
+        r"/(?:run/)?media/[^/\s]+/)"
+        r"[0-9a-f]{4,}(?:-[0-9a-f]+)*\b", re.I)),
+    ("absolute user path", re.compile(r"/(?:home|Users|(?:run/)?media)/[A-Za-z0-9_.-]+(?:/|\b)|/root/")),
+    ("audio PCI topology", re.compile(r"\bpci-[0-9a-f]{4}[_:][0-9a-f]{2}[_:][0-9a-f]{2}\\?\.[0-7]", re.I)),
+)
+SECRET_ASSIGNMENT = re.compile(
+    r"(?<![\w-])(?:[A-Z0-9]+[_-])*(?:password|passwd|pwd|api[_-]?key|"
+    r"client[_-]?secret|access[_-]?token|refresh[_-]?token|auth[_-]?token|"
+    r"secret[_-]?(?:access[_-]?)?key|private[_-]?key|"
+    r"token|secret|authorization|cookie)[\"']?\s*[:=]\s*"
+    r"(?:\"([^\"\r\n]*)\"|'([^'\r\n]*)'|(\$\{[^}\r\n]*\}|[^\s,;#}\r\n]+))", re.I)
+
+
+def scan_export(tree, home=None):
+    """Check all exported bytes, names and link targets without following links."""
+    findings = []
+    for path in sorted(tree.rglob("*")):
+        relative = path.relative_to(tree).as_posix()
+        if (path.name == ".env" or path.name.startswith(".env.")
+                or path.name.lower() in {"cookies", "cookies.txt", "cookies.sqlite",
+                                         "cookies.json", ".netrc", "credentials.json"}):
+            findings.append((relative, "credential file"))
+        texts = [relative]
+        if path.is_symlink():
+            texts.append(os.readlink(path))
+        elif path.is_file():
+            data = path.read_bytes()
+            # Include strings embedded in binary files and UTF-16 configurations.
+            texts.append(data.decode("utf-8", errors="replace"))
+            if b"\0" in data:
+                texts.extend(data.decode(encoding, errors="replace")
+                             for encoding in ("utf-16-le", "utf-16-be"))
+        for content in texts:
+            content = re.sub(r"\\u([0-9a-fA-F]{4})", lambda match: chr(int(match[1], 16)), content)
+            content = unquote(content.replace(r"\/", "/").replace(r'\"', '"').replace(r"\'", "'"))
+            for label, pattern in SCAN_RULES:
+                if pattern.search(content):
+                    findings.append((relative, label))
+            if home and re.search(re.escape(str(home)) + r"(?=/|\b)", content):
+                findings.append((relative, "source home path"))
+            for match in SECRET_ASSIGNMENT.finditer(content):
+                value = next(value for value in match.groups() if value is not None)
+                if (value and value.lower() not in {"true", "false", "none", "null"}
+                        and not re.fullmatch(r"\$(?:[A-Za-z_][A-Za-z0-9_]*|[0-9@*]|\{[A-Za-z_][A-Za-z0-9_]*\})", value)):
+                    findings.append((relative, "credential assignment"))
+    if findings:
+        # Never print matched values; an error log must not become a secret dump.
+        details = "\n".join(f"  {path}: {label}" for path, label in sorted(set(findings)))
+        raise RuntimeError(f"Export rejected by secret/privacy scan:\n{details}")
+
+
+def portable_text(content, home):
+    return re.sub(re.escape(str(home)) + r"(?=/|$|[\s\"'])", HOME_PLACEHOLDER, content)
+
+
+def export_file(source, dest, home, relative=None, portable=True):
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if source.is_symlink():
+        link = os.readlink(source)
+        if relative is not None and link.startswith(str(home) + "/"):
+            link = os.path.relpath(link, home / relative.parent)
+        dest.symlink_to(link)
+        return
+    shutil.copy2(source, dest)
+    try:
+        content = dest.read_bytes().decode("utf-8")
+    except UnicodeDecodeError:
+        return
+    if portable:
+        content = portable_text(content, home)
+    if relative is not None and relative.as_posix() == ".config/dolphinrc":
+        content = "\n".join(line for line in content.splitlines()
+                            if not line.startswith("DirHistory")) + "\n"
+    if relative is not None and relative.as_posix() == ".config/kdeglobals":
+        content = "\n".join(line for line in content.splitlines()
+                            if not line.startswith(("History Items", "Recent URLs"))) + "\n"
+    # This stock comment illustrates a generic path, not a captured user path.
+    if relative is not None and relative.as_posix() == ".config/btop/btop.conf":
+        content = content.replace("/home/user", "$HOME")
+    dest.write_bytes(content.encode("utf-8"))
 
 
 def excluded(path):
@@ -101,24 +198,18 @@ def capture(home):
                 for item in files(source):
                     relative = item.relative_to(base)
                     dest = stage / group / relative
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    if item.is_symlink():
-                        dest.symlink_to(os.readlink(item))
-                    else:
-                        shutil.copy2(item, dest)
-                        if relative.as_posix() == ".config/dolphinrc":
-                            content = dest.read_text()
-                            dest.write_text("\n".join(line for line in content.splitlines()
-                                                      if not line.startswith("DirHistory")) + "\n")
+                    export_file(item, dest, home, relative if group != "system" else None)
                     entries.append({"path": dest.relative_to(stage).as_posix(),
-                                    "source": str(item), "sha256": fingerprint(dest),
+                                    "source": f"{'system' if group == 'system' else 'home'}:{relative.as_posix()}",
+                                    "sha256": fingerprint(dest),
                                     "mode": oct(item.lstat().st_mode & 0o777),
-                                    "symlink": os.readlink(item) if item.is_symlink() else None})
+                                    "symlink": os.readlink(dest) if dest.is_symlink() else None})
         upstream = home / ".local/share/omarchy-debian/upstream"
         if (upstream / ".git").is_dir():
             (stage / "upstream").mkdir()
             patch = subprocess.run(["git", "-C", str(upstream), "diff", "--binary", "HEAD"],
                                    capture_output=True, check=True).stdout
+            # Recovery patches must retain their exact bytes and hunk hashes.
             (stage / "upstream/installed-overlay.patch").write_bytes(patch)
             # Preserve Debian-only files that git diff does not include.
             for name in command("git", "-C", str(upstream), "ls-files", "--others",
@@ -126,13 +217,13 @@ def capture(home):
                 if not name:
                     continue
                 dest = stage / "upstream/extra" / name
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(upstream / name, dest)
-        manifest = {"captured_at": datetime.now(timezone.utc).isoformat(),
-                    "source_home": str(home), "entries": entries,
+                export_file(upstream / name, dest, home, portable=False)
+        manifest = {"format_version": 2,
+                    "captured_at": datetime.now(timezone.utc).isoformat(), "entries": entries,
                     "upstream_commit": command("git", "-C", str(upstream), "rev-parse", "HEAD").strip()
                     if (upstream / ".git").is_dir() else None}
         (stage / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+        scan_export(stage, home)
         old = ROOT / ".customizations-previous"
         if old.exists():
             raise RuntimeError(f"Previous capture recovery folder exists: {old}")
@@ -153,17 +244,19 @@ def capture(home):
 
 def validate():
     manifest = json.loads((PROFILE / "manifest.json").read_text())
+    if manifest.get("format_version") != 2:
+        raise RuntimeError("Unsupported capture format; recapture using the current script")
     for entry in manifest["entries"]:
         path = PROFILE / entry["path"]
         if fingerprint(path) != entry["sha256"]:
             raise RuntimeError(f"Capture differs from manifest: {entry['path']}")
+    scan_export(PROFILE, Path.home())
     print(f"Verified {len(manifest['entries'])} captured files.")
     return manifest
 
 
 def restore(home, apply, hardware):
     manifest = validate()
-    old_home = manifest["source_home"]
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%f")
     backup = home / ".local/state/omarchy-debian/restore-backups" / stamp
     for entry in manifest["entries"]:
@@ -184,11 +277,11 @@ def restore(home, apply, hardware):
             saved.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(target), saved)
         if source.is_symlink():
-            target.symlink_to(os.readlink(source).replace(old_home + "/", str(home) + "/"))
+            target.symlink_to(os.readlink(source))
         else:
             content = source.read_bytes()
             try:
-                content = content.decode().replace(old_home + "/", str(home) + "/").encode()
+                content = content.decode().replace(HOME_PLACEHOLDER, str(home)).encode()
             except UnicodeDecodeError:
                 pass
             target.write_bytes(content)

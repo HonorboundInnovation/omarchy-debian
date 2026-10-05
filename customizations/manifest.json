@@ -1,6 +1,5 @@
 {
   "captured_at": "2026-10-05T00:02:56.908362+00:00",
-  "source_home": "@HOME@",
   "entries": [
     {
       "path": "home/.config/hypr/.luarc.json",
@@ -782,9 +781,9 @@
     {
       "path": "home/.local/state/omarchy/current/background",
       "source": "home:.local/state/omarchy/current/background",
-      "sha256": "4218ea28010bad81ba43f29e37b0701d78600901f95b656a4b7d4aff3a7a9884",
+      "sha256": "a47ad0d07575ebb79cae8d44244334b5b457e0a7ea94f9be7ed9760e0888ddf7",
       "mode": "0o777",
-      "symlink": "@HOME@/.local/state/omarchy/current/theme/backgrounds/neural-core.png"
+      "symlink": "theme/backgrounds/neural-core.png"
     },
     {
       "path": "home/.local/state/omarchy/current/theme/README.md",
@@ -1165,5 +1164,6 @@
       "symlink": null
     }
   ],
-  "upstream_commit": "c668141e9c42b13c80c9ca4ea108e11708c5e8a5"
+  "upstream_commit": "c668141e9c42b13c80c9ca4ea108e11708c5e8a5",
+  "format_version": 2
 }

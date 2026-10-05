@@ -58,7 +58,8 @@ python3 scripts/customizations.py restore --hardware --apply
 
 Units are copied but not enabled or started automatically. Root-owned files in
 `customizations/system/` are reference material and are never installed by
-restore. Resume, NVIDIA, global audio, and SDDM settings must match the hardware.
+restore. NVIDIA, audio initialization, and SDDM settings must match the hardware.
+Host-specific audio recovery helpers and resume files are excluded from capture.
 
 Refresh the export after editing your live desktop, then review the diff:
 
@@ -69,8 +70,23 @@ python3 scripts/customizations.py check
 
 Capture uses an explicit desktop allowlist. Credentials, browser profiles,
 agent account settings, unrelated app services, logs, caches, backups, bookmarks,
-and Dolphin directory history are excluded. `manifest.json` records origins,
-modes, symlinks, checksums, and the upstream source revision.
+and Dolphin/KDE directory history are excluded. `manifest.json` records logical
+sources such as `home:.config/hypr/bindings.lua`, modes, symlinks, checksums, and
+the upstream source revision. Exported text uses `@HOME@` for the captured home;
+restore expands it to the destination home. Home symlinks are stored relatively.
+Use restore to materialize these templates before using the exported configs.
+
+Capture scans the entire staged tree, including upstream patches, extra files,
+binary strings, filenames, and symlink targets, before replacing the previous
+export. Detected keys, private keys, credential assignments/URLs, authorization
+headers, cookies, filesystem UUID references, absolute user paths, and audio PCI
+addresses abort capture and leave the previous export intact. `check` and
+`restore` run the same scan. Errors report paths and rule names without printing
+matched values. Fix the source file or remove it from the allowlist and retry;
+there is no scanner bypass switch. Pattern detection cannot identify every
+possible secret, so continue reviewing the diff before publishing. Existing Git
+history is unaffected by a new capture. Upstream recovery overlays retain exact
+bytes; private paths in them must be fixed at the source before capture succeeds.
 
 ## Files
 
@@ -107,8 +123,8 @@ discovery entries, preserving existing independent skills.
 SHELLCHECK=/path/to/shellcheck ./scripts/check.sh
 ```
 
-Checks cover shell/Python/Lua syntax, capture checksums, bridge command routing,
-snapshot guards, restore backups/relocation, and runtime patch application when
+Checks cover shell/Python/Lua syntax, capture checksums and privacy rejection,
+bridge command routing, snapshot guards, restore backups/relocation, and runtime patch application when
 the pinned upstream checkout is present. A complete clean-machine installation
 and Timeshift restore are not yet tested.
 
