@@ -1,6 +1,10 @@
 # Omarchy on Debian
 
-Private source repository for this machine's Debian 13 Omarchy installer,
+This is my Debian 13 Omarchy installer, built mostly for me, as a test of 
+a theory. and eventually turned into my full time desktop environment. I now
+have this running on my laptop and my desktop. I'm releasing this as a 
+curiosity that turned into something I genuinely enjoy using.
+
 APT/Arch bridge, Neural Acid theme, custom menu, and desktop configuration.
 Omarchy is pinned to v4.0.4, commit
 `c668141e9c42b13c80c9ca4ea108e11708c5e8a5`. This is an independent Debian port.
